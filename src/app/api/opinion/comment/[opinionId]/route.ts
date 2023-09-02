@@ -23,7 +23,7 @@ export const POST = async (req: Request, { params }: Props) => {
 
     const newComment = await CommentModel.create({
       text: commentText,
-      creator: session.user.id,
+      creator: session.user._id,
       opinion: params.opinionId,
     })
 

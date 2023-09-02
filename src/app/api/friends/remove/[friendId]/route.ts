@@ -20,10 +20,10 @@ export const DELETE = async (req: Request, { params }: ParamsProps) => {
     await Promise.all([
       await UserModel.findOneAndUpdate(
         { _id: params.friendId },
-        { $pull: { friends: session.user.id } }
+        { $pull: { friends: session.user._id } }
       ),
       await UserModel.findOneAndUpdate(
-        { _id: session.user.id },
+        { _id: session.user._id },
         { $pull: { friends: params.friendId } }
       ),
     ])

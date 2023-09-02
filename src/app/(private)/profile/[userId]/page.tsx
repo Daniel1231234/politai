@@ -35,14 +35,14 @@ const ProfilePage = async ({ params }: ProfilePageProps) => {
 
   if (!user) throw new Error("No user found")
 
-  const isUserProfile = session.user.id === user._id
+  const isUserProfile = session.user._id === user._id
 
   const isAlreadyFriends = user.friends.some(
-    (friend: any) => friend._id === session.user.id
+    (friend: any) => friend._id === session.user._id
   )
 
   const isAlreadyFriendRequest = user.friendRequests.some(
-    (fr: FriendRequest) => fr.senderId === session.user.id
+    (fr: FriendRequest) => fr.senderId === session.user._id
   )
 
   return (

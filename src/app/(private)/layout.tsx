@@ -30,7 +30,7 @@ const FeedLayout = async ({ children }: LayoutProps) => {
   if (!session?.user) redirect("/auth")
 
   const user = session.user
-  const friendRequests: FriendRequest[] = await getUserFriendRequests(user.id)
+  const friendRequests: FriendRequest[] = await getUserFriendRequests(user._id)
 
   return (
     <>
@@ -55,7 +55,7 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
                     <li>
                       <Link
-                        href={`/profile/${session.user.id}`}
+                        href={`/profile/${session.user._id}`}
                         className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"
                       >
                         <span className="text-gray-400  border-gray-200 ">

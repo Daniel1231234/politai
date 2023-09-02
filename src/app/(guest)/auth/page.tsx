@@ -7,7 +7,6 @@ import { toast } from "react-hot-toast"
 import { signIn } from "next-auth/react"
 import Input from "../../../components/Input"
 import GoogleSignin from "@/components/GoogleSignin"
-import { useSearchParams } from "next/navigation"
 
 type Variant = "LOGIN" | "REGISTER"
 
@@ -15,13 +14,6 @@ const AuthPage = ({}) => {
   const router = useRouter()
   const [variant, setVariant] = useState<Variant>("LOGIN")
   const [isLoading, setIsLoading] = useState(false)
-  const searchParams = useSearchParams()
-
-  let callbackUrl = searchParams.get("callbackUrl")!
-
-  if (callbackUrl === null) {
-    callbackUrl = "/feed"
-  }
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
@@ -89,8 +81,7 @@ const AuthPage = ({}) => {
   const loginWithGoogle = async () => {
     setIsLoading(true)
     try {
-      const res = await signIn("google")
-      console.log(res)
+      await signIn("google")
     } catch (error) {
       toast.error("Something went wrong with your login.")
     } finally {

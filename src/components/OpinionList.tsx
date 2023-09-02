@@ -55,7 +55,7 @@ const OpinionList: React.FC<OpinionListProps> = ({
             (friend: any) => friend._id === opinion.creator._id
           )
 
-          const isUserOpinion = opinion.creator._id === user.id
+          const isUserOpinion = opinion.creator._id === user._id
           const isOpinionHidden = hiddenOpinions.some(
             (op) => op._id === opinion._id
           )

@@ -1,14 +1,11 @@
-import type { NextAuthOptions } from "next-auth"
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter"
+import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import NextAuth from "next-auth"
 import { connectMongoDB } from "@/lib/db"
 import UserModel from "@/models/user"
-import clientPromise from "@/lib/clientPromise"
 
 export const authOptios: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
   session: {
     strategy: "jwt",
   },
@@ -21,7 +18,6 @@ export const authOptios: NextAuthOptions = {
       name: "credentials",
       credentials: {},
       async authorize(credentials, req) {
-        console.log("why its here?")
         if (credentials == null) return null
         const { email, password } = credentials as {
           email: string
@@ -30,61 +26,44 @@ export const authOptios: NextAuthOptions = {
 
         await connectMongoDB()
 
-        const user = await UserModel.findOneAndUpdate(
-          { email },
-          { active: true }
-        )
+        const user = await UserModel.findOne({ email })
         if (!user) throw Error("email/password mismatch!")
         const passwordsMatch = await user.comparePassword(password)
         if (!passwordsMatch) throw Error("email/password mismatch!")
 
         return {
-          id: user._id,
+          _id: user._id,
           name: user.name,
           email: user.email,
           image: user.image,
           role: user.role,
-        }
+        } as unknown as any
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user, account, profile }: any) {
-      if (user) {
-        token.user = {
-          _id: user._id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          image: user.image,
-        }
+      if (user && user.role) {
+        token.role = user.role
+        token._id = user._id
       }
-      // if (user && user.role) {
-      //   token.role = user.role
-      //   token.id = user._id
-      // }
       return token
     },
     async session({ session, token, user }: any) {
-      if (token) {
-        session.user = token.user
+      if (!token.role) {
+        const dbUser = await UserModel.findOne({ email: session.user.email })
+        if (dbUser) {
+          session.user._id = dbUser._id
+          session.user.role = dbUser.role
+          return session
+        }
+      }
+
+      if (session.user) {
+        session.user.role = token.role
+        session.user._id = token.id
       }
       return session
-
-      // if (!token.role) {
-      //   const dbUser = await UserModel.findOne({ email: session.user.email })
-      //   if (dbUser) {
-      //     session.user._id = dbUser._id.toString()
-      //     session.user.role = dbUser.role
-      //     return session
-      //   }
-      // }
-
-      // if (session.user) {
-      //   session.user.role = token.role
-      //   session.user._id = token.id
-      // }
-      // return session
     },
     async signIn({ user, account, profile, email }: any) {
       try {
@@ -100,6 +79,7 @@ export const authOptios: NextAuthOptions = {
               active: true,
             })
             console.log("newUswr = > ", newUser)
+            return true
           }
         }
         return true

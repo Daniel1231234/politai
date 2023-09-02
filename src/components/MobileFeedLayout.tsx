@@ -141,7 +141,7 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
                                 >
                                   <li>
                                     <Link
-                                      href={`/profile/${user.id}`}
+                                      href={`/profile/${user._id}`}
                                       className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"
                                     >
                                       <span className="text-gray-400  border-gray-200 ">

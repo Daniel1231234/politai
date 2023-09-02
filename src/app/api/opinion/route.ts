@@ -17,7 +17,7 @@ export const POST = async (req: Request) => {
       body: body.body,
       images: body.images,
       topics: body.topics,
-      creator: session.user.id,
+      creator: session.user._id,
     })
 
     const updatedUser = await UserModel.findOneAndUpdate(

@@ -35,7 +35,7 @@ const FeedPage = async ({}: FeedPageProps) => {
   )
 
   const userFriends = await JSON.parse(
-    JSON.stringify(await getUserFriends(session.user.id))
+    JSON.stringify(await getUserFriends(session.user._id))
   )
 
   return (

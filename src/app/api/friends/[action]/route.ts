@@ -24,7 +24,7 @@ export const POST = async (req: Request, { params }: Props) => {
     if (params.action === "accept") {
       const senderUpdate = {
         ...commonUpdate,
-        $push: { friends: session.user.id },
+        $push: { friends: session.user._id },
       }
 
       const receiverUpdate = {
@@ -34,10 +34,10 @@ export const POST = async (req: Request, { params }: Props) => {
 
       await Promise.all([
         UserModel.findOneAndUpdate({ _id: senderId }, senderUpdate),
-        UserModel.findOneAndUpdate({ _id: session.user.id }, receiverUpdate),
+        UserModel.findOneAndUpdate({ _id: session.user._id }, receiverUpdate),
       ])
     } else {
-      await UserModel.findOneAndUpdate({ _id: session.user.id }, commonUpdate)
+      await UserModel.findOneAndUpdate({ _id: session.user._id }, commonUpdate)
     }
 
     return NextResponse.json({ success: true }, { status: 200 })

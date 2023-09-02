@@ -11,7 +11,7 @@ export const POST = async (req: Request) => {
     const senderUserId = await req.json()
 
     const newFriendRequest: FriendRequest = {
-      senderId: session.user.id,
+      senderId: session.user._id,
       senderImage: session.user.image,
       senderName: session.user.name,
     }

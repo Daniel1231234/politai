@@ -83,13 +83,13 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
   const handleNewLike = async () => {
     try {
       const isUserAllreadyLike = opinionLikes.some(
-        (like) => like.creator.id === user.id
+        (like) => like.creator.id === user._id
       )
       if (isUserAllreadyLike) return
 
       const newLike = {
         id: "id" + Math.random().toString(16).slice(2),
-        creator: { name: user.name, id: user.id },
+        creator: { name: user.name, id: user._id },
       }
       console.log(newLike)
       //   await axios.post(`/api/opinion/${opinion.id}/like`, newLike)
@@ -239,7 +239,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                 <Divider className="my-2" />
                 {opinionComments?.map((comment) => (
                   <div key={comment.id} className="mb-4 relative">
-                    {user.id === comment.creator._id && (
+                    {user._id === comment.creator._id && (
                       <button
                         onClick={(e) => handleDeleteComment(e, comment._id)}
                         className="absolute top-2 right-2 p-1 text-gray-500 hover:bg-gray-50 hover:rounded-full"
