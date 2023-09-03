@@ -5,9 +5,10 @@ import Button from "../Button"
 import About from "./About"
 import Friends from "./Friends"
 import Opinions from "./Opinions"
+import { UserDocument } from "@/models/user"
 
 interface ProfileContentProps {
-  user: any
+  user: UserDocument
   isUserProfile: boolean
 }
 

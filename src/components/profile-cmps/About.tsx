@@ -1,7 +1,8 @@
 import React from "react"
+import { UserDocument } from "@/models/user"
 
 interface AboutProps {
-  user: any
+  user: UserDocument
 }
 
 const About: React.FC<AboutProps> = ({ user }) => {

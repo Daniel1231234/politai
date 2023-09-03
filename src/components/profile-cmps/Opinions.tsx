@@ -3,9 +3,10 @@ import OpinionItem from "./OpinionItem"
 import EmptyState from "../EmptyState"
 import AddOpinionModal from "../AddOpinionModal"
 import Button from "../Button"
+import { UserDocument } from "@/models/user"
 
 interface OpinionsProps {
-  user: any
+  user: UserDocument
   isUserProfile: boolean
 }
 
@@ -19,7 +20,7 @@ const Opinions: React.FC<OpinionsProps> = ({ user, isUserProfile }) => {
           {isUserProfile && (
             <Button
               onClick={() => setIsOpen(true)}
-              className="absolute top-0 right-2 z-10 bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded"
+              className="absolute top-0 right-2 z-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded"
             >
               Create New Opinion
             </Button>

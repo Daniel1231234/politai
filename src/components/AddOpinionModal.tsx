@@ -10,6 +10,8 @@ import { getInitialTopics } from "@/lib/utils"
 import { createOpinionDto } from "@/models/opinion"
 import Button from "./Button"
 import { FaFileImage } from "react-icons/fa"
+import { useRouter } from "next/navigation"
+import { UserDocument } from "@/models/user"
 
 const animatedComponents = makeAnimated()
 
@@ -25,7 +27,7 @@ const emptyOpinion = {
 interface AddOpinionModalProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  user: any
+  user: UserDocument
 }
 
 const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
@@ -36,6 +38,7 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
   const [topics, setTopics] = useState<string[]>(["general"])
   const [opinion, setOpinion] = useState<createOpinionDto>(emptyOpinion)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const router = useRouter()
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e.target.files)
@@ -55,12 +58,14 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
         body: JSON.stringify(opinionToSend),
       }).then((res) => res.json())
       if (res.success) toast.success("Opinion added Successfully!")
+      router.refresh()
     } catch (error) {
       toast.error("Something went wrong, please try again later")
       throw error
     } finally {
       setIsLoading(false)
       setOpinion(emptyOpinion)
+      setIsOpen(false)
     }
   }
 

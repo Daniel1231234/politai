@@ -1,21 +1,18 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { toast } from "react-hot-toast"
 import { BsSearch } from "react-icons/bs"
 import AppLogo from "./AppLogo"
 import MenuDropdown from "./MenuDropdown"
 import { FriendRequest } from "@/types"
+import { UserDocument } from "@/models/user"
 
 interface FeedHeaderProps {
-  user: any
+  user: UserDocument
   friendRequests: FriendRequest[]
 }
 
 const FeedHeader: React.FC<FeedHeaderProps> = ({ user, friendRequests }) => {
-  const router = useRouter()
-
   return (
     <div className="py-2 border-b-2 px-7 flex items-center justify-between">
       <div className="left-side">

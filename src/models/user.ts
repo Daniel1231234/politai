@@ -4,7 +4,7 @@ import mongoose from "mongoose"
 import OpinionDocument from "./opinion"
 import { FriendRequest } from "@/types"
 
-interface UserDocument extends Document {
+export interface UserDocument extends Document {
   email: string
   password: string
   name: string
@@ -51,6 +51,7 @@ const userSchema = new Schema<UserDocument, {}, Methodods>({
   ],
   ideology: { type: String, default: "" },
   role: { type: String, enum: ["admin", "user"], default: "user" },
+  createdAt: { type: Date, default: new Date() },
 })
 
 userSchema.pre("save", async function (next) {

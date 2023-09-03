@@ -14,9 +14,10 @@ import AppFooter from "@/components/AppFooter"
 import { FaBell, FaUsers, FaHome, FaSignOutAlt, FaBars } from "react-icons/fa"
 import { MdClose } from "react-icons/md"
 import { FriendRequest } from "@/types"
+import { UserDocument } from "@/models/user"
 
 interface MobileFeedLayoutProps {
-  user: any
+  user: UserDocument
   friendRequests: FriendRequest[]
 }
 

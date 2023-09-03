@@ -8,7 +8,31 @@ export const POST = async (req: Request) => {
   try {
     const session = await getServerSession(authOptios)
     if (!session) return new Response("Unauthorized", { status: 400 })
-    const senderUserId = await req.json()
+
+    const senderUserId: string = await req.json()
+
+    // Check if a friend request from the session user already exists
+    const existingReceiver = await UserModel.findById(senderUserId)
+    if (!existingReceiver) {
+      return NextResponse.json({
+        success: false,
+        message: "Not found receiver",
+      })
+    }
+
+    const existingRequest = existingReceiver.friendRequests.find(
+      (req) => req.senderId === session.user._id
+    )
+
+    if (existingRequest) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Friend request already exists",
+        },
+        { status: 400 }
+      )
+    }
 
     const newFriendRequest: FriendRequest = {
       senderId: session.user._id,

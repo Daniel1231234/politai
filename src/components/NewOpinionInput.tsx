@@ -3,13 +3,14 @@
 import Image from "next/image"
 import React, { useState } from "react"
 import AddOpinionModal from "./AddOpinionModal"
+import { UserDocument } from "@/models/user"
 
 interface NewOpinionInputProps {
   user: any
 }
 
 const NewOpinionInput: React.FC<NewOpinionInputProps> = ({ user }) => {
-  let [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
 
   return (
     <>

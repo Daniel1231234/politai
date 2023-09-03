@@ -3,9 +3,10 @@ import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { toast } from "react-hot-toast"
 import EmptyState from "../EmptyState"
+import { UserDocument } from "@/models/user"
 
 interface FriendsProps {
-  user: any
+  user: UserDocument
   isAllreadyFrinds?: boolean
   isUserProfile: boolean
 }

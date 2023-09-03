@@ -12,9 +12,10 @@ import useFriendRequests from "@/hooks/useFriendRequests"
 import { useRouter } from "next/navigation"
 import FriendRequestPreviewModal from "./FriendRequestPreviewModal"
 import { FriendRequest } from "@/types"
+import { UserDocument } from "@/models/user"
 
 interface MenuDropdownProps {
-  user: any
+  user: UserDocument
   friendRequests: FriendRequest[]
 }
 

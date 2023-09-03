@@ -5,9 +5,10 @@ import Image from "next/image"
 import { toast } from "react-hot-toast"
 import { usePathname, useRouter } from "next/navigation"
 import { formatDate } from "@/lib/utils"
+import { UserDocument } from "@/models/user"
 
 interface ProfileHeaderProps {
-  user: any
+  user: UserDocument
   isUserProfile: boolean
 }
 

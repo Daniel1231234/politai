@@ -11,18 +11,21 @@ import TextareaAutosize from "react-textarea-autosize"
 import { Like } from "@/models/extra"
 import { BsX } from "react-icons/bs"
 import { useOnClickOutside } from "../hooks/useOnClickOutside"
-import { AiOutlineUserAdd } from "react-icons/ai"
+import { FiUserPlus } from "react-icons/fi"
 import { IoIosSend } from "react-icons/io"
+import { UserDocument } from "@/models/user"
+import { FaThumbsUp } from "react-icons/fa"
+import { BiMessageSquareAdd } from "react-icons/bi"
 
 interface OpinionPreviewProps {
   opinion: any
   isFriends: boolean
   isUserOpinion?: boolean
   onHide: (opinion: any) => void
-  onAddFriend: (userToAdd: any) => Promise<void>
+  onAddFriend: (userToAdd: UserDocument) => Promise<void>
   isHidden: boolean
   handleUndo: any
-  user: any
+  user: UserDocument
 }
 
 const OpinionPreview: React.FC<OpinionPreviewProps> = ({
@@ -82,16 +85,17 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   const handleNewLike = async () => {
     try {
-      const isUserAllreadyLike = opinionLikes.some(
-        (like) => like.creator.id === user._id
-      )
-      if (isUserAllreadyLike) return
+      console.log(opinion)
+      // const isUserAllreadyLike = opinionLikes.some(
+      //   (like) => like.creator.id === user._id
+      // )
+      // if (isUserAllreadyLike) return
 
-      const newLike = {
-        id: "id" + Math.random().toString(16).slice(2),
-        creator: { name: user.name, id: user._id },
-      }
-      console.log(newLike)
+      // const newLike = {
+      //   id: "id" + Math.random().toString(16).slice(2),
+      //   creator: { name: user.name, id: user._id },
+      // }
+      // console.log(newLike)
       //   await axios.post(`/api/opinion/${opinion.id}/like`, newLike)
     } catch (err) {
       toast.error("Something went wrong")
@@ -100,30 +104,32 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   return (
     <div
-      className="opinion-container px-5 py-4 relative bg-white shadow rounded-lg w-full"
       ref={opinionRef}
+      className="relative bg-white shadow rounded-lg p-4 w-full"
     >
       {!isHidden ? (
         <>
-          <div className="flex items-center gap-1 absolute top-2 right-2">
-            {!isFriends && !isUserOpinion && (
+          <div className="flex justify-between">
+            <div></div>
+            <div className=" flex items-center space-x-1 ">
+              {!isFriends && !isUserOpinion && (
+                <button
+                  onClick={() => onAddFriend(opinion.creator)}
+                  className="text-gray-500 "
+                >
+                  <FiUserPlus className="w-10 h-10 p-2 hover:bg-gray-200 cursor-pointer rounded" />
+                </button>
+              )}
               <button
-                className=" text-gray-500 hover:bg-gray-50 hover:rounded-full"
-                onClick={() => onAddFriend(opinion.creator._id)}
+                onClick={() => onHide(opinion)}
+                className="text-gray-500 "
               >
-                <AiOutlineUserAdd className="h-8 w-8 cursor-pointer" />
+                <BsX className="w-10 h-10 hover:bg-gray-200 cursor-pointer rounded" />
               </button>
-            )}
-            <button
-              onClick={() => onHide(opinion)}
-              className={` text-gray-500 hover:bg-gray-50 hover:rounded-full`}
-              title="close"
-              type="button"
-            >
-              <BsX className="h-10 w-10 cursor-pointer" />
-            </button>
+            </div>
           </div>
-          <div className="user-profile-section relative flex mb-4">
+
+          <div className="relative flex items-center mb-4">
             <Image
               width={48}
               height={48}
@@ -132,11 +138,11 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
               alt="User Profile"
             />
             <div
-              className="ml-2 mt-0.5 cursor-pointer"
+              className="ml-2 mt-1 cursor-pointer"
               onClick={() => router.push(`/profile/${opinion.creator._id}`)}
             >
-              <span className="block font-medium text-base leading-snug text-black">
-                {opinion?.creator.name}
+              <span className="block font-medium text-base text-black leading-snug">
+                {opinion.creator.name}
               </span>
               <span className="block text-sm text-gray-500 font-light leading-snug">
                 {formatedDistance(opinion.createdAt)}
@@ -144,15 +150,14 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
             </div>
           </div>
 
-          <p className="opinion-text text-gray-800 leading-snug md:leading-normal">
+          <p className="text-gray-800 leading-snug md:leading-normal">
             {opinion?.body}
           </p>
-
           <Divider className="my-2" />
 
           <div className="flex justify-between items-center">
             <div className="flex">
-              {/* <ThumbsUpIcon className="p-1 rounded-full bg-blue-400 shadow-md text-white" /> */}
+              <FaThumbsUp className="p-1 rounded-full bg-blue-400 shadow-md text-white" />
               <span className="ml-1 text-gray-500 font-light">
                 {opinion.likes.length}
               </span>
@@ -174,7 +179,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
               variant="ghost"
               className="flex items-center gap-1 font-normal flex-1"
             >
-              {/* <ThumbsUpIcon /> */}
+              <FaThumbsUp />
               <span>Like</span>
             </Button>
             <Button
@@ -185,7 +190,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
               variant="ghost"
               className="flex items-center gap-1 font-normal flex-1"
             >
-              {/* <MessageSquareIcon /> */}
+              <BiMessageSquareAdd />
               <span>Comment</span>
             </Button>
           </div>

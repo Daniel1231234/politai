@@ -43,6 +43,10 @@ export const authOptios: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, profile }: any) {
+      // console.log("JWT token => ", token)
+      // console.log("JWT user => ", user)
+      // console.log("JWT account => ", account)
+      // console.log("JWT profile => ", profile)
       if (user && user.role) {
         token.role = user.role
         token._id = user._id
@@ -50,10 +54,14 @@ export const authOptios: NextAuthOptions = {
       return token
     },
     async session({ session, token, user }: any) {
+      // console.log("session session => ", session)
+      // console.log("session token => ", token)
+      // console.log("token user => ", user)
       if (!token.role) {
         const dbUser = await UserModel.findOne({ email: session.user.email })
         if (dbUser) {
-          session.user._id = dbUser._id
+          session.user._id =
+            typeof dbUser._id === "string" ? dbUser._id : dbUser._id.toString()
           session.user.role = dbUser.role
           return session
         }
@@ -61,7 +69,7 @@ export const authOptios: NextAuthOptions = {
 
       if (session.user) {
         session.user.role = token.role
-        session.user._id = token.id
+        session.user._id = token._id
       }
       return session
     },
