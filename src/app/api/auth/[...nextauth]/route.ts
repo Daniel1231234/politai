@@ -5,7 +5,7 @@ import NextAuth from "next-auth"
 import { connectMongoDB } from "@/lib/db"
 import UserModel from "@/models/user"
 
-export const authOptios: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -43,10 +43,6 @@ export const authOptios: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, profile }: any) {
-      // console.log("JWT token => ", token)
-      // console.log("JWT user => ", user)
-      // console.log("JWT account => ", account)
-      // console.log("JWT profile => ", profile)
       if (user && user.role) {
         token.role = user.role
         token._id = user._id
@@ -54,9 +50,6 @@ export const authOptios: NextAuthOptions = {
       return token
     },
     async session({ session, token, user }: any) {
-      // console.log("session session => ", session)
-      // console.log("session token => ", token)
-      // console.log("token user => ", user)
       if (!token.role) {
         const dbUser = await UserModel.findOne({ email: session.user.email })
         if (dbUser) {
@@ -99,6 +92,6 @@ export const authOptios: NextAuthOptions = {
   },
 }
 
-const handler = NextAuth(authOptios)
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }

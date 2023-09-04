@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth"
-import { authOptios } from "../api/auth/[...nextauth]/route"
+import { authOptions } from "../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 
 interface LayoutProps {
@@ -7,7 +7,7 @@ interface LayoutProps {
 }
 
 const GuestLayout = async ({ children }: LayoutProps) => {
-  const session = await getServerSession(authOptios)
+  const session = await getServerSession(authOptions)
   if (session) redirect("/feed")
 
   return (

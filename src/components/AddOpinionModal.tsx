@@ -12,6 +12,8 @@ import Button from "./Button"
 import { FaFileImage } from "react-icons/fa"
 import { useRouter } from "next/navigation"
 import { UserDocument } from "@/models/user"
+import { CldUploadButton, CldImage } from "next-cloudinary"
+import { UploadImagesResult } from "@/types"
 
 const animatedComponents = makeAnimated()
 
@@ -38,11 +40,9 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
   const [topics, setTopics] = useState<string[]>(["general"])
   const [opinion, setOpinion] = useState<createOpinionDto>(emptyOpinion)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const router = useRouter()
+  const [imageId, setImageId] = useState("")
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.files)
-  }
+  const router = useRouter()
 
   const selectTopics = (topics: any) => {
     const topicValues = topics.map((item: any) => item.value)
@@ -52,6 +52,7 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
   const onSubmit = async () => {
     setIsLoading(true)
     try {
+      if (imageId) opinion.images!.push(imageId)
       const opinionToSend = { ...opinion, topics }
       const res = await fetch("/api/opinion", {
         method: "POST",
@@ -134,19 +135,30 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
                     placeholder={`Make your voice heard, ${user?.name}!`}
                     className="block w-full  border-0 bg-transparent text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:py-1.5 sm:text-sm sm:leading-6 min-h-[80px]"
                   />
+                  <div className="image">
+                    {imageId !== "" && (
+                      <CldImage
+                        width="400"
+                        height="600"
+                        src={imageId}
+                        sizes="100vh"
+                        alt="image"
+                      />
+                    )}
+                  </div>
                   <label
                     htmlFor="file-upload"
                     className="absolute bottom-4 right-4 cursor-pointer"
                   >
-                    <FaFileImage size={24} />
+                    <CldUploadButton
+                      uploadPreset="wz721uu6"
+                      onUpload={(result: any) => {
+                        setImageId(result.info.public_id)
+                      }}
+                    >
+                      <FaFileImage size={24} />
+                    </CldUploadButton>
                   </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={onFileChange}
-                  />
                 </div>
 
                 <div className="mt-2 flex flex-col gap-4">

@@ -1,6 +1,7 @@
 import { Model, models, model, Document, Schema } from "mongoose"
 import mongoose from "mongoose"
 import { User } from "next-auth"
+import CommentModel from "./comment"
 
 export interface OpinionDocument extends Document {
   title: string
@@ -8,7 +9,7 @@ export interface OpinionDocument extends Document {
   images: any[]
   topics: any[]
   creator: User
-  comments: any[]
+  comments: (typeof CommentModel)[]
   likes: any[]
   dislikes: any[]
   createdAt: Date

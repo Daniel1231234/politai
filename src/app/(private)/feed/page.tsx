@@ -1,44 +1,50 @@
-import { authOptios } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import Divider from "@/components/Divider"
 import NewOpinionInput from "@/components/NewOpinionInput"
 import OpinionList from "@/components/OpinionList"
 import { connectMongoDB } from "@/lib/db"
+import CommentModel from "@/models/comment"
 import OpinionModel from "@/models/opinion"
 import UserModel, { UserDocument } from "@/models/user"
 import { getServerSession } from "next-auth"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import React from "react"
 
 interface FeedPageProps {}
 
-async function getUserFriends(_id: string) {
+export async function getUserFriends(_id: string) {
   // await connectMongoDB()
   const user = await UserModel.findById({ _id }).populate("friends")
   if (!user) return
-  return user.friends
+  return JSON.parse(JSON.stringify(user.friends))
 }
 
 async function getInitialOpinions() {
-  // await connectMongoDB()
-  const opinions = await OpinionModel.find().populate("creator")
-  return opinions
+  // Make sure you are connected to the database
+  await connectMongoDB()
+
+  try {
+    // Try populating the creator and comments fields
+    const opinions = await OpinionModel.find()
+      .populate("creator")
+      .populate({
+        path: "comments",
+        populate: { path: "creator", model: "User" },
+      }) // Specifying model explicitly
+
+    return JSON.parse(JSON.stringify(opinions))
+  } catch (error) {
+    console.error("Failed to populate:", error)
+  }
 }
 
-async function getOpinionComments() {}
-
 const FeedPage = async ({}: FeedPageProps) => {
-  const session = await getServerSession(authOptios)
-  if (!session) return notFound()
+  const session = await getServerSession(authOptions)
+  if (!session) return redirect("/auth")
 
-  // console.log(session)
+  const initialOpinions = await getInitialOpinions()
 
-  const initialOpinions = await JSON.parse(
-    JSON.stringify(await getInitialOpinions())
-  )
-
-  const userFriends = await JSON.parse(
-    JSON.stringify(await getUserFriends(session.user._id))
-  )
+  const userFriends = await getUserFriends(session.user._id)
 
   return (
     <>

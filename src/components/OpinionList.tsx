@@ -20,7 +20,6 @@ const OpinionList: React.FC<OpinionListProps> = ({
   userFriends,
 }) => {
   const [opinions, setOpinions] = useState<any[]>(initialOpinions)
-  const [hiddenOpinions, setHiddenOpinions] = useState<any[]>([])
   const [isAdding, setIsAdding] = useState(false)
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
@@ -47,17 +46,6 @@ const OpinionList: React.FC<OpinionListProps> = ({
     }
   }
 
-  const onHide = (opinionId: string) => {
-    const opinion = opinions.find((op) => op._id === opinionId)
-    if (!opinion) return
-    setHiddenOpinions((prev) => [...prev, opinion])
-  }
-
-  const handleUndo = (opinion: OpinionDocument) => {
-    const updatedOps = hiddenOpinions.filter((op) => op.id !== opinion._id)
-    setHiddenOpinions(updatedOps)
-  }
-
   return (
     <>
       <section className="mt-12 px-4 md:px-8">
@@ -76,9 +64,6 @@ const OpinionList: React.FC<OpinionListProps> = ({
             )
 
             const isUserOpinion = opinion.creator._id === user._id
-            const isOpinionHidden = hiddenOpinions.some(
-              (op) => op._id === opinion._id
-            )
 
             return (
               <OpinionPreview
@@ -86,10 +71,7 @@ const OpinionList: React.FC<OpinionListProps> = ({
                 opinion={opinion}
                 isFriends={isFriend}
                 isUserOpinion={isUserOpinion}
-                onHide={onHide}
-                isHidden={isOpinionHidden}
                 onAddFriend={onAddFriend}
-                handleUndo={handleUndo}
                 user={user}
               />
             )

@@ -1,8 +1,8 @@
 import React from "react"
-import { notFound, redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 import UserModel from "../../../../models/user"
 import { getServerSession } from "next-auth"
-import { authOptios } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import AddFriendButton from "@/components/AddFriendButton"
 import { FriendRequest } from "@/types"
 import Divider from "@/components/Divider"
@@ -26,8 +26,8 @@ async function getUserById(userId: string) {
 }
 
 const ProfilePage = async ({ params }: ProfilePageProps) => {
-  const session = await getServerSession(authOptios)
-  if (!session) return notFound()
+  const session = await getServerSession(authOptions)
+  if (!session) redirect("/auth")
 
   const user = await JSON.parse(
     JSON.stringify(await getUserById(params.userId))

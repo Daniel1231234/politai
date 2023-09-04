@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth"
-import { authOptios } from "../../auth/[...nextauth]/route"
+import { authOptions } from "../../auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
 import UserModel from "../../../../models/user"
 
@@ -11,7 +11,7 @@ interface Props {
 
 export const POST = async (req: Request, { params }: Props) => {
   try {
-    const session = await getServerSession(authOptios)
+    const session = await getServerSession(authOptions)
 
     if (!session) return new Response("Unauthorized", { status: 400 })
 

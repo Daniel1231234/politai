@@ -3,7 +3,7 @@
 import { Transition, Dialog } from "@headlessui/react"
 import Image from "next/image"
 import Link from "next/link"
-import { FC, Fragment, useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import AppLogo from "@/components/AppLogo"
 import Button from "@/components/Button"
@@ -14,10 +14,10 @@ import AppFooter from "@/components/AppFooter"
 import { FaBell, FaUsers, FaHome, FaSignOutAlt, FaBars } from "react-icons/fa"
 import { MdClose } from "react-icons/md"
 import { FriendRequest } from "@/types"
-import { UserDocument } from "@/models/user"
+import { SiWechat } from "react-icons/si"
 
 interface MobileFeedLayoutProps {
-  user: UserDocument
+  user: any
   friendRequests: FriendRequest[]
 }
 
@@ -172,13 +172,13 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
                                   </li>
                                   <li>
                                     <Link
-                                      href="/groups"
+                                      href="/chat"
                                       className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"
                                     >
                                       <span className="text-gray-400 border-gray-400">
-                                        <FaUsers className="h-9 w-9 rounded-full" />
+                                        <SiWechat className="h-9 w-9 rounded-full" />
                                       </span>
-                                      <span className="truncate">Groups</span>
+                                      <span className="truncate">Chat</span>
                                     </Link>
                                   </li>
                                   <li>

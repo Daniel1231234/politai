@@ -1,9 +1,10 @@
 import { getServerSession } from "next-auth"
-import { authOptios } from "../api/auth/[...nextauth]/route"
+import { authOptions } from "../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { FaLayerGroup, FaHome } from "react-icons/fa"
+import { FaHome } from "react-icons/fa"
+import { SiWechat } from "react-icons/si"
 import FeedHeader from "@/components/FeedHeader"
 import UserModel from "@/models/user"
 import { FriendRequest } from "@/types"
@@ -26,7 +27,7 @@ interface LayoutProps {
 }
 
 const FeedLayout = async ({ children }: LayoutProps) => {
-  const session = await getServerSession(authOptios)
+  const session = await getServerSession(authOptions)
   if (!session?.user) redirect("/auth")
 
   const user = session.user
@@ -35,14 +36,14 @@ const FeedLayout = async ({ children }: LayoutProps) => {
   return (
     <>
       <section className="bg-light-1">
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <MobileFeedLayout user={user} friendRequests={friendRequests} />
         </div>
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <FeedHeader user={user} friendRequests={friendRequests} />
         </div>
         <div className="w-full flex gap-8 h-[calc(100vh-66px)]">
-          <div className="hidden md:flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r dark:border-none px-6">
+          <div className="hidden lg:flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r dark:border-none px-6">
             <nav className="flex flex-1 flex-col border-r-4">
               <ul
                 role="list"
@@ -52,6 +53,7 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                   <div className="text-sm font-semibold leading-6 text-gray-700 ">
                     Overview
                   </div>
+
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
                     <li>
                       <Link
@@ -70,6 +72,7 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                         <span className="truncate">{user?.name}</span>
                       </Link>
                     </li>
+
                     <li>
                       <Link
                         href="/feed"
@@ -81,15 +84,16 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                         <span className="truncate">Feed</span>
                       </Link>
                     </li>
+
                     <li>
                       <Link
-                        href="/groups"
+                        href="/chat"
                         className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"
                       >
                         <span className="text-gray-400 border-gray-400">
-                          <FaLayerGroup className="h-9 w-9 rounded-full" />
+                          <SiWechat className="h-9 w-9 rounded-full" />
                         </span>
-                        <span className="truncate">Groups</span>
+                        <span className="truncate">Chat</span>
                       </Link>
                     </li>
                   </ul>
@@ -100,7 +104,7 @@ const FeedLayout = async ({ children }: LayoutProps) => {
               </ul>
             </nav>
           </div>
-          <aside className="py-16 px-6 md:py-12  w-full overflow-y-auto">
+          <aside className="py-16 px-6 lg:py-12  w-full overflow-y-auto">
             {children}
           </aside>
         </div>

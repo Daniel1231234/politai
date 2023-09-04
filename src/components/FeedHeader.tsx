@@ -8,7 +8,7 @@ import { FriendRequest } from "@/types"
 import { UserDocument } from "@/models/user"
 
 interface FeedHeaderProps {
-  user: UserDocument
+  user: any
   friendRequests: FriendRequest[]
 }
 

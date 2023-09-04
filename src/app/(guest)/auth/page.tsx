@@ -31,8 +31,8 @@ const AuthPage = ({}) => {
   } = useForm<FieldValues>({
     defaultValues: {
       name: "",
-      email: "",
-      password: "",
+      email: "poli@poli.com",
+      password: "123",
     },
   })
 
@@ -69,9 +69,10 @@ const AuthPage = ({}) => {
         const res = await commonSignIn()
         goToFeed(res)
       }
-    } catch (err) {
+    } catch (err: any) {
       toast.error("Something went wrong!")
-      console.log(err)
+      console.error("Something went wrong:", err.message)
+      console.error(err.stack)
     } finally {
       reset()
       setIsLoading(false)

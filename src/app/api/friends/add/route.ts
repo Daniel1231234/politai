@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptios } from "../../auth/[...nextauth]/route"
+import { authOptions } from "../../auth/[...nextauth]/route"
 import UserModel from "@/models/user"
 import { FriendRequest } from "@/types"
 
 export const POST = async (req: Request) => {
   try {
-    const session = await getServerSession(authOptios)
+    const session = await getServerSession(authOptions)
     if (!session) return new Response("Unauthorized", { status: 400 })
 
     const senderUserId: string = await req.json()

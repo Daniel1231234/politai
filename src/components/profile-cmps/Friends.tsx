@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
@@ -24,6 +26,7 @@ const Friends: React.FC<FriendsProps> = ({ user, isUserProfile }) => {
       }
       router.refresh()
     } catch (err) {
+      console.log(err)
       toast.error("Cant remove this friend! please try again later")
     }
   }

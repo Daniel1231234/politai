@@ -8,38 +8,36 @@ import { useRouter } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import TextareaAutosize from "react-textarea-autosize"
-import { Like } from "@/models/extra"
-import { BsX } from "react-icons/bs"
+import { Like } from "@/types"
+import { BsX, BsHeart, BsHeartFill, BsFillXCircleFill } from "react-icons/bs"
 import { useOnClickOutside } from "../hooks/useOnClickOutside"
 import { FiUserPlus } from "react-icons/fi"
 import { IoIosSend } from "react-icons/io"
 import { UserDocument } from "@/models/user"
-import { FaThumbsUp } from "react-icons/fa"
+import { FaThumbsUp, FaThumbsDown } from "react-icons/fa"
 import { BiMessageSquareAdd } from "react-icons/bi"
+import { CldImage } from "next-cloudinary"
+import { CommentDocument } from "@/models/comment"
 
 interface OpinionPreviewProps {
   opinion: any
   isFriends: boolean
   isUserOpinion?: boolean
-  onHide: (opinion: any) => void
   onAddFriend: (userToAdd: UserDocument) => Promise<void>
-  isHidden: boolean
-  handleUndo: any
+
   user: UserDocument
 }
 
 const OpinionPreview: React.FC<OpinionPreviewProps> = ({
   opinion,
   isFriends,
-  onHide,
   isUserOpinion,
   onAddFriend,
-  isHidden,
-  handleUndo,
+
   user,
 }) => {
   const router = useRouter()
-  const [openComments, setOpenComments] = useState<boolean>(false)
+  const [isOpenComments, setIsOpenComments] = useState<boolean>(false)
   const [commentText, setCommentText] = useState<string>("")
   const [opinionComments, setOpinionComments] = useState<any[]>(
     opinion.comments
@@ -49,7 +47,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   const opinionRef = useRef<HTMLDivElement | null>(null)
 
-  const handleCloseComments = () => setOpenComments(false)
+  const handleCloseComments = () => setIsOpenComments(false)
 
   useOnClickOutside(opinionRef, handleCloseComments)
 
@@ -76,60 +74,51 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
     commentid: string
   ) => {
     e.stopPropagation()
+    setIsLoading(true)
     try {
-      //   await axios.delete(`/api/opinion/${opinion.id}/comment/${commentid}`)
+      const res = await fetch(`/api/opinion/comment/${opinion._id}`, {
+        method: "DELETE",
+        body: JSON.stringify(commentid),
+      }).then((res) => res.json())
+      console.log(res)
     } catch (err) {
+      console.log(err)
       toast.error("Something went wrong")
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleNewLike = async () => {
     try {
       console.log(opinion)
-      // const isUserAllreadyLike = opinionLikes.some(
-      //   (like) => like.creator.id === user._id
-      // )
-      // if (isUserAllreadyLike) return
-
-      // const newLike = {
-      //   id: "id" + Math.random().toString(16).slice(2),
-      //   creator: { name: user.name, id: user._id },
-      // }
-      // console.log(newLike)
-      //   await axios.post(`/api/opinion/${opinion.id}/like`, newLike)
     } catch (err) {
       toast.error("Something went wrong")
     }
   }
 
   return (
-    <div
-      ref={opinionRef}
-      className="relative bg-white shadow rounded-lg p-4 w-full"
-    >
-      {!isHidden ? (
-        <>
-          <div className="flex justify-between">
-            <div></div>
-            <div className=" flex items-center space-x-1 ">
-              {!isFriends && !isUserOpinion && (
-                <button
-                  onClick={() => onAddFriend(opinion.creator)}
-                  className="text-gray-500 "
-                >
-                  <FiUserPlus className="w-10 h-10 p-2 hover:bg-gray-200 cursor-pointer rounded" />
-                </button>
-              )}
+    <>
+      <div
+        ref={opinionRef}
+        className="relative bg-white shadow-md rounded-lg p-4 w-full"
+      >
+        <div className="flex justify-between">
+          <div></div>
+          <div className=" flex items-center space-x-1 ">
+            {!isFriends && !isUserOpinion && (
               <button
-                onClick={() => onHide(opinion)}
+                onClick={() => onAddFriend(opinion.creator)}
                 className="text-gray-500 "
               >
-                <BsX className="w-10 h-10 hover:bg-gray-200 cursor-pointer rounded" />
+                <FiUserPlus className="w-10 h-10 p-2 hover:bg-gray-200 cursor-pointer rounded" />
               </button>
-            </div>
+            )}
           </div>
+        </div>
 
-          <div className="relative flex items-center mb-4">
+        <div className="flex justify-between mb-4">
+          <div className="flex">
             <Image
               width={48}
               height={48}
@@ -137,158 +126,169 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
               src={opinion.creator.image}
               alt="User Profile"
             />
-            <div
-              className="ml-2 mt-1 cursor-pointer"
-              onClick={() => router.push(`/profile/${opinion.creator._id}`)}
-            >
-              <span className="block font-medium text-base text-black leading-snug">
+            <div className="ml-2 cursor-pointer">
+              <span className="block font-semibold text-lg text-black">
                 {opinion.creator.name}
               </span>
-              <span className="block text-sm text-gray-500 font-light leading-snug">
+              <span className="block text-sm text-gray-500">
                 {formatedDistance(opinion.createdAt)}
               </span>
             </div>
           </div>
+        </div>
 
-          <p className="text-gray-800 leading-snug md:leading-normal">
-            {opinion?.body}
-          </p>
-          <Divider className="my-2" />
+        <p className="text-lg mb-2">{opinion?.body}</p>
 
-          <div className="flex justify-between items-center">
-            <div className="flex">
-              <FaThumbsUp className="p-1 rounded-full bg-blue-400 shadow-md text-white" />
-              <span className="ml-1 text-gray-500 font-light">
-                {opinion.likes.length}
-              </span>
-            </div>
-            <div className="flex">
-              <p className="text-gray-600 text-sm font-light">
-                {opinion.comments.length} comments
-              </p>
-            </div>
-          </div>
-
-          <Divider className="my-2" />
-
-          <div className="flex items-center justify-between w-full">
-            <Button
-              onClick={() => handleNewLike()}
-              title="like"
-              size="sm"
-              variant="ghost"
-              className="flex items-center gap-1 font-normal flex-1"
-            >
-              <FaThumbsUp />
-              <span>Like</span>
-            </Button>
-            <Button
-              onClick={() => setOpenComments(true)}
-              type="button"
-              title="comment"
-              size="sm"
-              variant="ghost"
-              className="flex items-center gap-1 font-normal flex-1"
-            >
-              <BiMessageSquareAdd />
-              <span>Comment</span>
-            </Button>
-          </div>
-
-          <Divider className="my-2" />
-          {openComments && (
-            <>
-              <form
-                className="flex gap-1 w-full items-center"
-                onSubmit={handleNewComment}
-              >
-                <div className="relative w-6 h-6">
-                  <Image
-                    src={user.image!}
-                    alt="profile"
-                    fill
-                    className="rounded-full"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <TextareaAutosize
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Submit your comment"
-                  className="flex-1 items-center px-3 py-2 bg-gray-200 block rounded-full border-0 resize-none  cursor-pointer focus:ring-0"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault()
-                      handleNewComment(e)
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  isLoading={isLoading}
-                  type="submit"
-                  disabled={commentText.length === 0}
-                >
-                  <IoIosSend
-                    className={
-                      "h-8 w-8" +
-                      cn({
-                        "text-blue-500 h-8 w-8": commentText.length > 0,
-                      })
-                    }
-                  />
-                </Button>
-              </form>
-              <div className="commentsContainer mt-4">
-                <Divider className="my-2" />
-                {opinionComments?.map((comment) => (
-                  <div key={comment.id} className="mb-4 relative">
-                    {user._id === comment.creator._id && (
-                      <button
-                        onClick={(e) => handleDeleteComment(e, comment._id)}
-                        className="absolute top-2 right-2 p-1 text-gray-500 hover:bg-gray-50 hover:rounded-full"
-                        title="delete comment"
-                        type="button"
-                      >
-                        <BsX className="h-4 w-4 font-thin" />
-                      </button>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-8 h-8">
-                        <Image
-                          src={comment?.creator.image!}
-                          alt="Profile"
-                          fill
-                          className="rounded-full"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      </div>
-                      <span className="text-base font-medium">
-                        {comment.creator.name}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">{comment.text}</p>
-                  </div>
-                ))}
+        {opinion.images.length > 0 && (
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            {opinion.images.map((publicId: string, idx: number) => (
+              <div key={idx} className="rounded-lg overflow-hidden">
+                <CldImage width="300" height="300" src={publicId} alt="" />
               </div>
-            </>
-          )}
-        </>
-      ) : (
-        <div className="flex items-center justify-between p-1">
-          <div className="flex flex-col">
-            <p>Opinion hidden</p>
-            <p className="text-[10px] text-gray-500">
-              {`You'll see fewer posts like this.`}
-            </p>
+            ))}
           </div>
-          <Button variant="ghost" onClick={() => handleUndo(opinion)}>
-            Undo
+        )}
+
+        <Divider className="my-2" />
+
+        <div className="flex justify-between mt-3">
+          <div className="flex gap-1 items-center text-blue-600">
+            <FaThumbsUp />
+            <span>{opinion.likes.length}</span>
+          </div>
+          <div className="flex gap-1 items-center text-gray-600">
+            <BiMessageSquareAdd />
+            <span> {opinion.comments.length}</span>
+          </div>
+        </div>
+
+        <Divider className="my-2" />
+
+        <div className="flex items-center justify-between w-full">
+          <Button
+            onClick={() => handleNewLike()}
+            title="like"
+            size="sm"
+            variant="ghost"
+            className="flex items-center gap-1 font-normal flex-1"
+          >
+            <FaThumbsUp />
+            <span>Like</span>
+          </Button>
+          <Button
+            onClick={() => setIsOpenComments(!isOpenComments)}
+            type="button"
+            title="comment"
+            size="sm"
+            variant="ghost"
+            className="flex items-center gap-1 font-normal flex-1"
+          >
+            <BiMessageSquareAdd />
+            <span>Comment</span>
           </Button>
         </div>
-      )}
-    </div>
+
+        <Divider className="my-2" />
+
+        {isOpenComments && (
+          <>
+            <form
+              className="flex gap-1 w-full items-center"
+              onSubmit={handleNewComment}
+            >
+              <div className="relative w-6 h-6">
+                <Image
+                  src={user.image!}
+                  alt="profile"
+                  fill
+                  className="rounded-full"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              <TextareaAutosize
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Submit your comment"
+                className="flex-1 items-center px-3 py-2 bg-gray-200 block rounded-full border-0 resize-none  cursor-pointer focus:ring-0"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault()
+                    handleNewComment(e)
+                  }
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                isLoading={isLoading}
+                type="submit"
+                disabled={commentText.length === 0}
+              >
+                <IoIosSend
+                  className={
+                    "h-8 w-8" +
+                    cn({
+                      "text-blue-500 h-8 w-8": commentText.length > 0,
+                    })
+                  }
+                />
+              </Button>
+            </form>
+
+            <div className="commentsContainer mt-4 space-y-4">
+              {opinion.comments?.map((comment: CommentDocument) => (
+                <div
+                  key={comment._id}
+                  className="mb-4 relative  bg-gray-100 p-3 rounded-lg shadow-sm"
+                >
+                  {user._id === comment.creator._id && (
+                    <button
+                      onClick={(e) => handleDeleteComment(e, comment._id)}
+                      className="absolute top-2 right-2 p-1 text-gray-500 hover:bg-gray-50 hover:rounded-full"
+                      title="delete comment"
+                      type="button"
+                    >
+                      <BsX className="h-4 w-4 font-thin text-gray-500" />
+                    </button>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                      <Image
+                        src={comment?.creator.image!}
+                        alt="Profile"
+                        fill
+                        className="rounded-full"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
+                    <span className="text-base font-medium">
+                      {comment.creator.name}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">{comment.text}</p>
+
+                  <div className="flex items-center gap-2 mt-2">
+                    <button className="text-gray-500 hover:text-gray-900">
+                      {comment.likes.includes(user._id) ? (
+                        <FaThumbsUp className="h-4 w-4" />
+                      ) : (
+                        <FaThumbsUp className="h-4 w-4" />
+                      )}
+                    </button>
+                    <span>{comment.likes.length}</span>
+
+                    <button className="text-gray-500 hover:text-gray-900 ml-4">
+                      <FaThumbsDown className="h-4 w-4" />
+                    </button>
+                    <span>{comment.dislikes.length}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </>
   )
 }
 

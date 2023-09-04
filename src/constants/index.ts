@@ -1,9 +1,11 @@
+import { FaHome } from "react-icons/fa"
+
 export const sidebarOpts: any[] = [
   {
     id: 1,
-    name: "Add friend",
-    href: "/dashboard/add",
-    Icon: "UserPlus",
+    name: "Feed",
+    href: "/feed",
+    Icon: FaHome,
   },
   {
     id: 3,

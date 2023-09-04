@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptios } from "../../../auth/[...nextauth]/route"
+import { authOptions } from "../../../auth/[...nextauth]/route"
 import UserModel from "@/models/user"
 
 interface ParamsProps {
@@ -9,22 +9,25 @@ interface ParamsProps {
 
 export const DELETE = async (req: Request, { params }: ParamsProps) => {
   try {
-    const session = await getServerSession(authOptios)
+    const session = await getServerSession(authOptions)
 
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
-    console.log(session)
+    const friend = await UserModel.findById(params.friendId)
+    if (!friend) {
+      return new NextResponse("Friend not found", { status: 401 })
+    }
 
     await Promise.all([
-      await UserModel.findOneAndUpdate(
-        { _id: params.friendId },
+      UserModel.findOneAndUpdate(
+        { _id: friend._id },
         { $pull: { friends: session.user._id } }
       ),
-      await UserModel.findOneAndUpdate(
+      UserModel.findOneAndUpdate(
         { _id: session.user._id },
-        { $pull: { friends: params.friendId } }
+        { $pull: { friends: friend._id } }
       ),
     ])
 
