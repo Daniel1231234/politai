@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
         if (!passwordsMatch) throw Error("email/password mismatch!")
 
         return {
-          _id: user._id,
+          _id: user._id.toString(),
           name: user.name,
           email: user.email,
           image: user.image,
@@ -43,6 +43,10 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, profile }: any) {
+      console.log("jwt user => ", user)
+      console.log("jwt token => ", token)
+      console.log("jwt account => ", account)
+      console.log("jwt profile => ", profile)
       if (user && user.role) {
         token.role = user.role
         token._id = user._id
@@ -50,6 +54,7 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token, user }: any) {
+      console.log("Session")
       if (!token.role) {
         const dbUser = await UserModel.findOne({ email: session.user.email })
         if (dbUser) {

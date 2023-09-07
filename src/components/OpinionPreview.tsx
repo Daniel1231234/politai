@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import TextareaAutosize from "react-textarea-autosize"
 import { Like } from "@/types"
-import { BsX, BsHeart, BsHeartFill, BsFillXCircleFill } from "react-icons/bs"
+import { BsX } from "react-icons/bs"
 import { useOnClickOutside } from "../hooks/useOnClickOutside"
 import { FiUserPlus } from "react-icons/fi"
 import { IoIosSend } from "react-icons/io"
@@ -91,8 +91,12 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   const handleNewLike = async () => {
     try {
-      console.log(opinion)
+      const res = await fetch(`/api/opinion/like/${opinion._id}`, {
+        method: "POST",
+      }).then((res) => res.json())
+      console.log(res)
     } catch (err) {
+      console.log(err)
       toast.error("Something went wrong")
     }
   }
@@ -152,7 +156,16 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
         <Divider className="my-2" />
 
         <div className="flex justify-between mt-3">
-          <div className="flex gap-1 items-center text-blue-600">
+          <div
+            className={
+              "flex gap-1 items-center" +
+              cn({
+                "text-blue-600": opinion.likes.filter(
+                  (like: Like) => like.creator === user._id
+                ),
+              })
+            }
+          >
             <FaThumbsUp />
             <span>{opinion.likes.length}</span>
           </div>
@@ -228,7 +241,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                   className={
                     "h-8 w-8" +
                     cn({
-                      "text-blue-500 h-8 w-8": commentText.length > 0,
+                      "text-blue-500": commentText.length > 0,
                     })
                   }
                 />
@@ -269,11 +282,14 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
                   <div className="flex items-center gap-2 mt-2">
                     <button className="text-gray-500 hover:text-gray-900">
-                      {comment.likes.includes(user._id) ? (
-                        <FaThumbsUp className="h-4 w-4" />
-                      ) : (
-                        <FaThumbsUp className="h-4 w-4" />
-                      )}
+                      <FaThumbsUp
+                        className={
+                          "h-4 w-4" +
+                          cn({
+                            "text-blue-600": opinion.likes.includes(user._id),
+                          })
+                        }
+                      />
                     </button>
                     <span>{comment.likes.length}</span>
 

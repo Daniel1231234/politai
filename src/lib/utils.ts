@@ -85,3 +85,14 @@ export function formatDateHHMM(
 
   return date.toLocaleTimeString(lang, options).slice(0, 5)
 }
+
+export function generateRandomId(): string {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()"
+  let id = ""
+  for (let i = 0; i < 10; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length)
+    id += chars[randomIndex]
+  }
+  return id
+}

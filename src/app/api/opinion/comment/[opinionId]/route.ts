@@ -1,5 +1,5 @@
-import OpinionModel from "../../../../../models/opinion"
-import CommentModel from "../../../../../models/comment"
+import OpinionModel from "@/models/opinion"
+import CommentModel from "@/models/comment"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../../auth/[...nextauth]/route"
 import { NextResponse } from "next/server"

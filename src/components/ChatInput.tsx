@@ -6,13 +6,14 @@ import { CldUploadButton } from "next-cloudinary"
 import TextareaAutosize from "react-textarea-autosize"
 import Button, { buttonVariants } from "./Button"
 import { toast } from "react-hot-toast"
+import { BsFillImageFill, BsEmojiWink } from "react-icons/bs"
 
 interface ChatInputProps {
   dbFriend: any
   chatId: string
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ dbFriend }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [input, setInput] = useState<string>("")
@@ -20,19 +21,23 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend }) => {
 
   const chatInputRef = useRef<HTMLDivElement | null>(null)
 
-  const clonseImgContianer = () => setOpenEmojiPicker(false)
+  const closeImgContianer = () => setOpenEmojiPicker(false)
 
-  useOnClickOutside(chatInputRef, clonseImgContianer)
+  useOnClickOutside(chatInputRef, closeImgContianer)
 
   const sendMessage = async () => {
     if (!input) return
     setIsLoading(true)
     try {
-      //   await axios.post("/api/message/send", {
-      //     text: input,
-      //     chatId,
-      //     isImage: false,
-      //   })
+      const body = {
+        chatId,
+        content: input,
+      }
+      const res = await fetch("/api/chat/message/send", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }).then((res) => res.json())
+      console.log(res)
       setInput("")
       textareaRef.current?.focus()
     } catch (err) {
@@ -44,7 +49,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend }) => {
 
   const handleEmojiClick = (emoji: string) => {
     setInput((prev: string) => (prev += emoji))
-    clonseImgContianer()
+    closeImgContianer()
   }
 
   const handleUpload = async (results: any) => {
@@ -118,8 +123,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend }) => {
                 onClick={() => setOpenEmojiPicker(!openEmojiPicker)}
                 className="w-full cursor-pointer"
               >
-                SmileIcON
-                {/* <SmileIcon strokeWidth={2} color="gray" /> */}
+                <BsEmojiWink strokeWidth={2} color="gray" />
               </Button>
               <div
                 className={`relative ${buttonVariants({
@@ -131,13 +135,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend }) => {
                   options={{ maxFiles: 1 }}
                   onUpload={handleUpload}
                   uploadPreset="wz721uu6"
+                  className="cursor-pointer"
                 >
-                  ImageIcON
-                  {/* <ImageIcon
-                    strokeWidth={2}
-                    color="gray"
-                    className="cursor-pointer"
-                  /> */}
+                  <BsFillImageFill strokeWidth={2} color="gray" />
                 </CldUploadButton>
               </div>
             </div>

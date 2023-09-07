@@ -5,8 +5,13 @@ import { FC, useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 import Image from "next/image"
 import { cn, toPusherKey } from "@/lib/utils"
+import { CldImage } from "next-cloudinary"
 
-interface MessagesProps {}
+interface MessagesProps {
+  dbChat: any
+  chatPartnerId: string
+  user: any
+}
 
 const initialContextMenu = {
   show: false,
@@ -15,8 +20,8 @@ const initialContextMenu = {
   isWiderScreen: false,
 }
 
-const Messages: React.FC<MessagesProps> = ({}) => {
-  const [messages, setMessages] = useState<any[]>([])
+const Messages: React.FC<MessagesProps> = ({ dbChat, chatPartnerId, user }) => {
+  const [messages, setMessages] = useState<any[]>(dbChat.messages)
   const [contextMenu, setContextMenu] = useState(initialContextMenu)
   const [msg, setMsg] = useState({ id: "", text: "" })
   const scrollDownRef = useRef<HTMLDivElement | null>(null)
@@ -69,6 +74,80 @@ const Messages: React.FC<MessagesProps> = ({}) => {
       className="flex dark:bg-bg-chat h-full flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
     >
       <div ref={scrollDownRef} />
+
+      {messages.map((message) => {
+        const isCurrUser = message.sender._id === chatPartnerId
+        const isImageMessage = false
+        const hasNextMessageFromSameUser = false
+
+        const formatTimeStamp = (timestamp: number) => {
+          return format(timestamp, "HH:mm")
+        }
+
+        return (
+          <div key={message.id}>
+            <div
+              className={cn("flex items-end", {
+                "justify-end": isCurrUser,
+              })}
+            >
+              <div
+                className={cn(
+                  "flex flex-col space-y-2 text-base max-w-xs mx-2",
+                  {
+                    "order-1 items-end": isCurrUser,
+                    "order-2 items-start": !isCurrUser,
+                  }
+                )}
+              >
+                {isImageMessage ? (
+                  <div
+                    onContextMenu={(e) => openMenu(e, message)}
+                    className="w-60 h-44 relative"
+                  >
+                    <CldImage
+                      src={msg.text}
+                      alt=""
+                      fill
+                      sizes="(max-width: 768px) 100vw,
+                    (max-width: 1200px) 50vw,
+                    33vw"
+                    />
+                    <span className="ml-2 text-sm text-gray-400">
+                      {formatTimeStamp(message.createdAt)}
+                    </span>
+                  </div>
+                ) : (
+                  <span
+                    onContextMenu={(e) => openMenu(e, msg)}
+                    className={cn("px-4 py-2 rounded-lg inline-block", {
+                      "bg-indigo-600 text-white ": isCurrUser,
+                      "bg-gray-200 text-gray-900  ": !isCurrUser,
+                      "rounded-br-none":
+                        !hasNextMessageFromSameUser && isCurrUser,
+                      "rounded-bl-none":
+                        !hasNextMessageFromSameUser && !isCurrUser,
+                    })}
+                  >
+                    {message.content}
+                    <span className="ml-2 text-sm text-gray-400">
+                      {formatTimeStamp(message.createdAt)}
+                    </span>
+                  </span>
+                )}
+              </div>
+
+              <div
+                className={cn("relative w-6 h-6", {
+                  "order-2": isCurrUser,
+                  "order-1": !isCurrUser,
+                  invisible: hasNextMessageFromSameUser,
+                })}
+              ></div>
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

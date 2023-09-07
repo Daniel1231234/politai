@@ -5,6 +5,8 @@ import { redirect } from "next/navigation"
 import UserModel from "@/models/user"
 import Messages from "@/components/Messages"
 import ChatInput from "@/components/ChatInput"
+import ChatModel from "@/models/chat"
+import { User } from "next-auth"
 
 interface PageProps {
   params: {
@@ -19,6 +21,19 @@ async function getUsersById(userId: string, friendId: string) {
   ])
 
   return JSON.parse(JSON.stringify(res))
+}
+
+async function createDbChat(chatId: string, users: User[]) {
+  const chat = await ChatModel.findOne({ chatId })
+  if (chat) return JSON.parse(JSON.stringify(chat))
+
+  const newChat = await ChatModel.create({
+    chatId,
+    messages: [],
+    users,
+  })
+
+  return JSON.parse(JSON.stringify(newChat))
 }
 
 const PrivateChatPage = async ({ params }: PageProps) => {
@@ -36,6 +51,8 @@ const PrivateChatPage = async ({ params }: PageProps) => {
   const chatPartnerId = user._id === userId1 ? userId2 : userId1
 
   const [dbUser, dbFriend] = await getUsersById(userId1, userId2)
+
+  const dbChat = await createDbChat(chatId, [dbUser, dbFriend])
 
   return (
     <div className="flex-1 justify-between flex flex-col h-full max-h-[calc(100vh - 6rem)] relative sm:px-0 ">
@@ -67,7 +84,7 @@ const PrivateChatPage = async ({ params }: PageProps) => {
           </div>
         </div>
       </div>
-      <Messages />
+      <Messages dbChat={dbChat} chatPartnerId={chatPartnerId} user={user} />
       <ChatInput dbFriend={dbFriend} chatId={chatId} />
     </div>
   )

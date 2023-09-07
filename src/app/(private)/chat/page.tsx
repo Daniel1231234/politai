@@ -7,6 +7,7 @@ import { FaChevronRight } from "react-icons/fa"
 import Link from "next/link"
 import Image from "next/image"
 import { hrefContructor } from "../../../lib/utils"
+
 interface ChatPageProps {}
 
 const ChatPage = async ({}: ChatPageProps) => {
@@ -20,8 +21,6 @@ const ChatPage = async ({}: ChatPageProps) => {
   return (
     <div className="container rounded-md py-12  sm:py-8 ">
       <h1 className="font-bold text-5xl mb-8">Recent chats</h1>
-
-      {/* {friendsWithLastMsg.length === 0 && <p>No messages yet</p>} */}
 
       {friends.map((friend: any) => (
         <div
