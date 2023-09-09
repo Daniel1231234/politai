@@ -13,7 +13,8 @@ type Variant = "LOGIN" | "REGISTER"
 const AuthPage = ({}) => {
   const router = useRouter()
   const [variant, setVariant] = useState<Variant>("LOGIN")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
@@ -80,13 +81,13 @@ const AuthPage = ({}) => {
   }
 
   const loginWithGoogle = async () => {
-    setIsLoading(true)
+    setIsGoogleLoading(true)
     try {
       await signIn("google")
     } catch (error) {
       toast.error("Something went wrong with your login.")
     } finally {
-      setIsLoading(false)
+      setIsGoogleLoading(false)
     }
   }
 
@@ -140,21 +141,14 @@ const AuthPage = ({}) => {
 
           <div className="mt-6">
             <div className="relative">
-              <div
-                className="
-                absolute 
-                inset-0 
-                flex 
-                items-center
-              "
-              >
+              <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex flex-col justify-center  text-sm">
                 <span className="bg-white px-2 text-gray-500">Or</span>
                 <GoogleSignin
                   loginWithGoogle={loginWithGoogle}
-                  isLoading={isLoading}
+                  isLoading={isGoogleLoading}
                 />
               </div>
             </div>

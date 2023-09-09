@@ -16,8 +16,6 @@ const ChatPage = async ({}: ChatPageProps) => {
 
   const friends = await getUserFriends(session.user._id)
 
-  const friendsWithLastMsg = []
-
   return (
     <div className="container rounded-md py-12  sm:py-8 ">
       <h1 className="font-bold text-5xl mb-8">Recent chats</h1>
@@ -48,7 +46,7 @@ const ChatPage = async ({}: ChatPageProps) => {
                 />
               </div>
             </div>
-            <h4 className="text-lg  font-semibold">{friend.name}</h4>
+            <h4 className="text-lg font-semibold">{friend.name}</h4>
           </Link>
         </div>
       ))}

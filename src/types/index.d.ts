@@ -1,3 +1,22 @@
+export type DBUser = {
+  createdAt?: string
+  _id: string
+  email: string
+  name: string
+  password: string
+  active: boolean
+  phone: string
+  image: string
+  birthday: string
+  friendRequests: string[]
+  gender: string
+  opinions: string[]
+  friends: string[]
+  ideology: string
+  role: string
+  __v: number
+}
+
 export type FriendRequest = {
   senderId: string
   senderImage: string
@@ -16,23 +35,12 @@ export type Like = {
   creator: any
 }
 
-export enum PoliticalType {
-  LEFT = "left",
-  RIGHT = "right",
-  LIBERTARIAN = "libertarian",
-  CENTRIST = "centrist",
-  CONSERVATIVE = "conservative",
-  PROGRESSIVE = "progressive",
-  SOCIALIST = "socialist",
-  GREEN = "green",
-  NATIONALIST = "nationalist",
-  FASCIST = "fascist",
-  ANARCHIST = "anarvhist",
-  SOCIALDEMOCRAT = "socialDemocrat",
-  COMMUNIST = "communist",
-  MODERATE = "moderate",
+export type Chat = {
+  _id: string
+  chatId: string
+  messages: any[]
+  users: DBUser[]
 }
-
 declare module "next-auth" {
   interface User {
     name: string

@@ -6,26 +6,20 @@ import TextareaAutosize from "react-textarea-autosize"
 import { toast } from "react-hot-toast"
 import ReactSelect from "react-select"
 import makeAnimated from "react-select/animated"
-import { getInitialTopics } from "@/lib/utils"
+import { getInitialTopics } from "@/constants"
 import { createOpinionDto } from "@/models/opinion"
 import Button from "./Button"
 import { FaFileImage } from "react-icons/fa"
 import { useRouter } from "next/navigation"
 import { UserDocument } from "@/models/user"
 import { CldUploadButton, CldImage } from "next-cloudinary"
-import { UploadImagesResult } from "@/types"
+import { getEmptyOpinion } from "@/lib/utils"
 
 const animatedComponents = makeAnimated()
 
 const initialTopics = getInitialTopics()
 
-const emptyOpinion = {
-  title: "",
-  body: "",
-  images: [],
-  topics: [],
-}
-
+const emptyOpinion = getEmptyOpinion()
 interface AddOpinionModalProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void

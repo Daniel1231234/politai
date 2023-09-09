@@ -15,15 +15,18 @@ import { FaBell, FaUsers, FaHome, FaSignOutAlt, FaBars } from "react-icons/fa"
 import { MdClose } from "react-icons/md"
 import { FriendRequest } from "@/types"
 import { SiWechat } from "react-icons/si"
+import SidebarChatList from "./SidebarChatList"
 
 interface MobileFeedLayoutProps {
   user: any
   friendRequests: FriendRequest[]
+  friends: any[]
 }
 
 const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
   user,
   friendRequests,
+  friends,
 }) => {
   const [open, setOpen] = useState<boolean>(false)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
@@ -170,7 +173,7 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
                                       <span className="truncate">Feed</span>
                                     </Link>
                                   </li>
-                                  <li>
+                                  <li className="mb-8">
                                     <Link
                                       href="/chat"
                                       className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"

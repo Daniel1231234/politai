@@ -3,9 +3,9 @@ import Divider from "@/components/Divider"
 import NewOpinionInput from "@/components/NewOpinionInput"
 import OpinionList from "@/components/OpinionList"
 import { connectMongoDB } from "@/lib/db"
-import CommentModel from "@/models/comment"
 import OpinionModel from "@/models/opinion"
 import UserModel, { UserDocument } from "@/models/user"
+import { DBUser } from "@/types"
 import { getServerSession } from "next-auth"
 import { notFound, redirect } from "next/navigation"
 import React from "react"
@@ -16,6 +16,7 @@ export async function getUserFriends(_id: string) {
   // await connectMongoDB()
   const user = await UserModel.findById({ _id }).populate("friends")
   if (!user) return
+
   return JSON.parse(JSON.stringify(user.friends))
 }
 

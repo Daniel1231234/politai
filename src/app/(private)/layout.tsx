@@ -10,6 +10,8 @@ import UserModel from "@/models/user"
 import { FriendRequest } from "@/types"
 import AppFooter from "@/components/AppFooter"
 import MobileFeedLayout from "@/components/MobileFeedLayout"
+import { getUserFriends } from "./feed/page"
+import SidebarChatList from "@/components/SidebarChatList"
 
 async function getUserFriendRequests(userId: string) {
   try {
@@ -33,16 +35,22 @@ const FeedLayout = async ({ children }: LayoutProps) => {
   const user = session.user
   const friendRequests: FriendRequest[] = await getUserFriendRequests(user._id)
 
+  const friends = await getUserFriends(user._id)
+
   return (
     <>
       <section className="bg-light-1">
         <div className="lg:hidden">
-          <MobileFeedLayout user={user} friendRequests={friendRequests} />
+          <MobileFeedLayout
+            user={user}
+            friendRequests={friendRequests}
+            friends={friends}
+          />
         </div>
         <div className="hidden lg:block">
           <FeedHeader user={user} friendRequests={friendRequests} />
         </div>
-        <div className="w-full flex gap-8 h-[calc(100vh-66px)]">
+        <div className="w-full flex h-[calc(100vh-66px)]">
           <div className="hidden lg:flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r dark:border-none px-6">
             <nav className="flex flex-1 flex-col border-r-4">
               <ul
@@ -95,6 +103,17 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                         </span>
                         <span className="truncate">Chat</span>
                       </Link>
+                      {friends.length > 0 && (
+                        <div className="text-xs font-semibold leading-6 text-green-400 ">
+                          Your chats
+                        </div>
+                      )}
+                      <div>
+                        <SidebarChatList
+                          friends={friends}
+                          sessionId={user._id}
+                        />
+                      </div>
                     </li>
                   </ul>
                 </li>

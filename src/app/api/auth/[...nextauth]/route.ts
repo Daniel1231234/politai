@@ -43,33 +43,34 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, profile }: any) {
-      console.log("jwt user => ", user)
-      console.log("jwt token => ", token)
-      console.log("jwt account => ", account)
-      console.log("jwt profile => ", profile)
-      if (user && user.role) {
-        token.role = user.role
-        token._id = user._id
+      try {
+        if (user && user.role) {
+          token.role = user.role
+          token._id = user._id
+        }
+        return token
+      } catch (error) {
+        console.error("JWT callback error:", error)
+        return Promise.reject(new Error("JWT callback error"))
       }
-      return token
     },
     async session({ session, token, user }: any) {
-      console.log("Session")
-      if (!token.role) {
-        const dbUser = await UserModel.findOne({ email: session.user.email })
-        if (dbUser) {
-          session.user._id =
-            typeof dbUser._id === "string" ? dbUser._id : dbUser._id.toString()
-          session.user.role = dbUser.role
-          return session
+      try {
+        if (token.role) {
+          session.user.role = token.role
+          session.user._id = token._id
+        } else {
+          const dbUser = await UserModel.findOne({ email: session.user.email })
+          if (dbUser) {
+            session.user._id = dbUser._id.toString()
+            session.user.role = dbUser.role
+          }
         }
+        return session
+      } catch (error) {
+        console.error("Session callback error:", error)
+        return Promise.reject(new Error("Session callback error"))
       }
-
-      if (session.user) {
-        session.user.role = token.role
-        session.user._id = token._id
-      }
-      return session
     },
     async signIn({ user, account, profile, email }: any) {
       try {
@@ -84,7 +85,6 @@ export const authOptions: NextAuthOptions = {
               password: "justToPassLogin",
               active: true,
             })
-            console.log("newUswr = > ", newUser)
             return true
           }
         }

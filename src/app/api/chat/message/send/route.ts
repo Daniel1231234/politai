@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { connectMongoDB } from "@/lib/db"
 import { generateRandomId } from "@/lib/utils"
 import ChatModel from "@/models/chat"
+import { pusherServer } from "@/lib/pusher"
 
 export const POST = async (req: Request) => {
   try {
@@ -18,18 +19,21 @@ export const POST = async (req: Request) => {
 
     const message = {
       id: generateRandomId(),
+      chatId: body.chatId,
       sender: session.user,
       content: body.content,
-      chatId: body.chatId,
       createdAt: Date.now(),
     }
 
-    await ChatModel.findOneAndUpdate(
-      { chatId: body.chatId },
-      {
-        $push: { messages: message },
-      }
-    )
+    await Promise.all([
+      pusherServer.trigger(body.chatId, "incoming-message", message),
+      ChatModel.findOneAndUpdate(
+        { chatId: body.chatId },
+        {
+          $push: { messages: message },
+        }
+      ),
+    ])
 
     return NextResponse.json({ success: true, message })
   } catch (error) {

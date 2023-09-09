@@ -5,12 +5,14 @@ import { FC, useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 import Image from "next/image"
 import { cn, toPusherKey } from "@/lib/utils"
+import { pusherClient } from "@/lib/pusher"
 import { CldImage } from "next-cloudinary"
 
 interface MessagesProps {
-  dbChat: any
+  chatMessages: any
   chatPartnerId: string
   user: any
+  chatId: string
 }
 
 const initialContextMenu = {
@@ -20,12 +22,32 @@ const initialContextMenu = {
   isWiderScreen: false,
 }
 
-const Messages: React.FC<MessagesProps> = ({ dbChat, chatPartnerId, user }) => {
-  const [messages, setMessages] = useState<any[]>(dbChat.messages)
+const Messages: React.FC<MessagesProps> = ({
+  chatMessages,
+  chatPartnerId,
+  user,
+  chatId,
+}) => {
+  const [messages, setMessages] = useState<any[]>(chatMessages)
   const [contextMenu, setContextMenu] = useState(initialContextMenu)
   const [msg, setMsg] = useState({ id: "", text: "" })
   const scrollDownRef = useRef<HTMLDivElement | null>(null)
   const [isTyping, setIsTyping] = useState(false)
+
+  useEffect(() => {
+    pusherClient.subscribe(chatId)
+
+    const messageHandler = (message: any) => {
+      setMessages((prev) => [message, ...prev])
+    }
+
+    pusherClient.bind("incoming-message", messageHandler)
+
+    return () => {
+      pusherClient.unsubscribe(chatId)
+      pusherClient.unbind("incoming_message", messageHandler)
+    }
+  }, [chatId])
 
   const openMenu = (
     e: React.MouseEvent<HTMLSpanElement, globalThis.MouseEvent>,
@@ -75,10 +97,11 @@ const Messages: React.FC<MessagesProps> = ({ dbChat, chatPartnerId, user }) => {
     >
       <div ref={scrollDownRef} />
 
-      {messages.map((message) => {
-        const isCurrUser = message.sender._id === chatPartnerId
+      {messages.map((message, idx) => {
+        const isCurrUser = message.sender._id === user._id
         const isImageMessage = false
-        const hasNextMessageFromSameUser = false
+        const hasNextMessageFromSameUser =
+          messages[idx - 1]?.sender._id === messages[idx].sender._id
 
         const formatTimeStamp = (timestamp: number) => {
           return format(timestamp, "HH:mm")

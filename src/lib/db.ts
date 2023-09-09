@@ -6,10 +6,6 @@ let connection: typeof mongoose
 
 export const connectMongoDB = async () => {
   try {
-    // if (mongoose.connections[0].readyState) {
-    //   console.log("Already connected")
-    //   return
-    // }
     if (!connection) connection = await mongoose.connect(url)
     console.log(`MongoDB Connected: ${connection.connection.host}`)
     return connection
