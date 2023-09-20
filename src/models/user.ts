@@ -2,6 +2,8 @@ import { Model, models, model, Document, Schema } from "mongoose"
 import * as bcrypt from "bcrypt"
 import mongoose from "mongoose"
 import OpinionDocument from "./opinion"
+import ChatDocument from "./chat"
+
 import { FriendRequest } from "@/types"
 
 export interface UserDocument extends Document {
@@ -15,6 +17,7 @@ export interface UserDocument extends Document {
   birthday: string
   gender: string
   opinions: (typeof OpinionDocument)[]
+  chats: (typeof ChatDocument)[]
   ideology: string
   religion: string
   friends: any
@@ -47,6 +50,12 @@ const userSchema = new Schema<UserDocument, {}, Methodods>({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+  ],
+  chats: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Chat",
     },
   ],
   ideology: { type: String, default: "" },

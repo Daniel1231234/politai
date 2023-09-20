@@ -97,7 +97,7 @@ const Messages: React.FC<MessagesProps> = ({
     >
       <div ref={scrollDownRef} />
 
-      {messages.map((message, idx) => {
+      {messages?.map((message, idx) => {
         const isCurrUser = message.sender._id === user._id
         const isImageMessage = false
         const hasNextMessageFromSameUser =

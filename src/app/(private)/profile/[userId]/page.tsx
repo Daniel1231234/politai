@@ -8,6 +8,7 @@ import { FriendRequest } from "@/types"
 import Divider from "@/components/Divider"
 import ProfileHeader from "@/components/ProfileHeader"
 import ProfileContent from "@/components/profile-cmps/ProfileContent"
+import { connectMongoDB } from "@/lib/db"
 
 interface ProfilePageProps {
   params: {
@@ -17,6 +18,7 @@ interface ProfilePageProps {
 
 async function getUserById(userId: string) {
   try {
+    await connectMongoDB()
     return await UserModel.findById({ _id: userId })
       .populate("opinions")
       .populate("friends")

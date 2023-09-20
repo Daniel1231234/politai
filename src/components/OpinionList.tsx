@@ -36,8 +36,9 @@ const OpinionList: React.FC<OpinionListProps> = ({
         toast.error(res.message)
         return
       }
-      console.log(res)
-      toast.success(`Friend request sent`)
+      if (res.success) {
+        toast.success(`Friend request sent`)
+      }
     } catch (error: any) {
       console.log(error)
       toast.error("Something went wrong!")
@@ -48,7 +49,7 @@ const OpinionList: React.FC<OpinionListProps> = ({
 
   return (
     <>
-      <section className="mt-12 px-4 md:px-8">
+      <section className="mt-12 md:px-8">
         {opinions.length === 0 && (
           <EmptyState
             title="No Opinions Yet"

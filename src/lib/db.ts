@@ -2,15 +2,22 @@ import mongoose from "mongoose"
 import "../models"
 
 const url = process.env.MONGODB_URI as string
-let connection: typeof mongoose
+if (!url) throw new Error("MONGODB_URI is not defined.")
+
+declare var global: any
+
+let cached: any = global.mongoose
+
+if (!cached) {
+  cached = global.mongoose = { conn: null }
+}
 
 export const connectMongoDB = async () => {
-  try {
-    if (!connection) connection = await mongoose.connect(url)
-    console.log(`MongoDB Connected: ${connection.connection.host}`)
-    return connection
-  } catch (error) {
-    console.log("Error connecting to MongoDB: ", error)
-    process.exit(1)
-  }
+  if (cached.conn) return cached.conn
+
+  cached.conn = await mongoose.connect(url)
+  console.log(cached)
+
+  return cached.conn
 }
+

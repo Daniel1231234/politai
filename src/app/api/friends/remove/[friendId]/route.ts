@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../../auth/[...nextauth]/route"
 import UserModel from "@/models/user"
+import { connectMongoDB } from "@/lib/db"
 
 interface ParamsProps {
   params: { friendId: string }
@@ -14,6 +15,8 @@ export const DELETE = async (req: Request, { params }: ParamsProps) => {
     if (!session) {
       return new NextResponse("Unauthorized", { status: 401 })
     }
+
+    await connectMongoDB()
 
     const friend = await UserModel.findById(params.friendId)
     if (!friend) {

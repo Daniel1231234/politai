@@ -59,8 +59,9 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
         method: "POST",
         body: JSON.stringify(commentText),
       }).then((res) => res.json())
-      console.log(res)
-      setCommentText("")
+      if (res.success) {
+        setCommentText("")
+      }
     } catch (err) {
       console.log(err)
       toast.error("Something went wrong")
@@ -80,7 +81,9 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
         method: "DELETE",
         body: JSON.stringify(commentid),
       }).then((res) => res.json())
-      console.log(res)
+      if (res.success) {
+        toast.success("Successfully deleting comment!")
+      }
     } catch (err) {
       console.log(err)
       toast.error("Something went wrong")
@@ -91,10 +94,9 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   const handleNewLike = async () => {
     try {
-      const res = await fetch(`/api/opinion/like/${opinion._id}`, {
+      await fetch(`/api/opinion/like/${opinion._id}`, {
         method: "POST",
       }).then((res) => res.json())
-      console.log(res)
     } catch (err) {
       console.log(err)
       toast.error("Something went wrong")
@@ -109,11 +111,11 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
       >
         <div className="flex justify-between">
           <div></div>
-          <div className=" flex items-center space-x-1 ">
+          <div className=" relative flex items-center space-x-1 ">
             {!isFriends && !isUserOpinion && (
               <button
                 onClick={() => onAddFriend(opinion.creator)}
-                className="text-gray-500 "
+                className="text-gray-500 absolute right-0 top-0 "
               >
                 <FiUserPlus className="w-10 h-10 p-2 hover:bg-gray-200 cursor-pointer rounded" />
               </button>
@@ -157,14 +159,11 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
         <div className="flex justify-between mt-3">
           <div
-            className={
-              "flex gap-1 items-center" +
-              cn({
-                "text-blue-600": opinion.likes.filter(
-                  (like: Like) => like.creator === user._id
-                ),
-              })
-            }
+            className={`flex gap-1 items-center ${cn({
+              "text-blue-600": opinion.likes.some(
+                (like: Like) => like.creator === user._id
+              ),
+            })} `}
           >
             <FaThumbsUp />
             <span>{opinion.likes.length}</span>
@@ -186,7 +185,12 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
             className="flex items-center gap-1 font-normal flex-1"
           >
             <FaThumbsUp />
-            <span>Like</span>
+
+            <span>
+              {opinion.likes.some((like: Like) => like.creator === user._id)
+                ? "UnLike"
+                : "Like"}
+            </span>
           </Button>
           <Button
             onClick={() => setIsOpenComments(!isOpenComments)}

@@ -5,31 +5,28 @@ import { usePathname, useRouter } from "next/navigation"
 import { hrefContructor, toPusherKey } from "@/lib/utils"
 import { toast } from "react-hot-toast"
 import { User } from "next-auth"
-import { FiTrash2 } from "react-icons/fi"
+import { Chat, Message } from "@/types"
+import Link from "next/link"
+import { SiWechat } from "react-icons/si"
 
 interface SidebarChatListProps {
-  friends: any[]
+  chats: any[] | undefined
   sessionId: string
 }
 
-interface Message {
-  id: string
-  chatId: string
-  sender: User
-  content: string
-  createdAt: number
-}
-
 const SidebarChatList: React.FC<SidebarChatListProps> = ({
-  friends,
+  chats,
   sessionId,
 }) => {
   const path = usePathname()
   const router = useRouter()
+  // const [chats, setChats] = useState<Chat[] | []>([])
+
   const [unseenMsgs, setUnseenMsgs] = useState<Message[]>([])
-  const [activeChats, setActiveChats] = useState<User[]>(friends)
+  const [isOpenSubMenu, setIsOpenSubMenu] = useState<boolean>(false)
 
   useEffect(() => {
+    console.log(chats)
     if (path?.includes("chat")) {
       setUnseenMsgs((prev) => {
         return prev.filter((msg) => !path.includes(msg.sender._id))
@@ -37,44 +34,59 @@ const SidebarChatList: React.FC<SidebarChatListProps> = ({
     }
   }, [path])
 
-  const handleDeleteChat = async (
-    e: React.MouseEvent<HTMLElement>,
-    friendId: string
-  ) => {
-    e.preventDefault()
-    try {
-      //   const res = await axios.delete(`/api/friends/remove/${friendId}`)
-      //   console.log(res)
-      router.refresh()
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   return (
-    <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
-      {activeChats.sort().map((friend) => {
-        const unseenMsgsCount = unseenMsgs.filter((unseenMsg) => {
-          return unseenMsg.sender._id === friend.id
-        }).length
+    <>
+      <div
+        onClick={() => setIsOpenSubMenu(!isOpenSubMenu)}
+        className="text-gray-700 hover:text-indigo-600 cursor-pointer hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center transition duration-100 ease-in"
+      >
+        <span className="text-gray-400 border-gray-400">
+          <SiWechat className="h-9 w-9 rounded-full" />
+        </span>
+        <span className="truncate">Chat</span>
+      </div>
+      {isOpenSubMenu && (
+        <ul
+          role="list"
+          className={`max-h-[25rem] overflow-y-auto -mx-2 space-y-1 transition-all duration-300 ease-in-out`}
+        >
+          {chats?.sort().map((chat) => {
+            const unseenMsgsCount = unseenMsgs.filter((unseenMsg) => {
+              return unseenMsg.sender._id === chat.id
+            }).length
 
-        return (
-          <li key={friend._id}>
+            const href = `/chat/${hrefContructor(sessionId, chat._id)}`
+            const isActive = path === href
+
+            return (
+              <li key={chat._id} className="relative">
+                <a
+                  className={`flex h-8 cursor-pointer items-center truncate rounded-md px-8 py-4 text-sm text-gray-700 font-semibold hover:text-indigo-600 transition duration-100 ease-in ${
+                    isActive ? "text-indigo-600" : "text-gray-700"
+                  }`}
+                  href={href}
+                >
+                  {chat.friendName}
+                  {unseenMsgs.length > 0 && (
+                    <div className="bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center">
+                      {unseenMsgsCount}
+                    </div>
+                  )}
+                </a>
+              </li>
+            )
+          })}
+          <li className="relative">
             <a
-              className="text-gray-700 hover:text-indigo-600  group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-              href={`/chat/${hrefContructor(sessionId, friend._id)}`}
+              className="flex h-8 cursor-pointer items-center truncate rounded-md px-8 py-4 text-sm text-gray-700 font-bold hover:text-indigo-600 transition duration-100 ease-in active:text-indigo-600"
+              href="/chat"
             >
-              {friend.name}
-              {unseenMsgs.length > 0 && (
-                <div className="bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center">
-                  {unseenMsgsCount}
-                </div>
-              )}
+              <span>Manage chats</span>
             </a>
           </li>
-        )
-      })}
-    </ul>
+        </ul>
+      )}
+    </>
   )
 }
 

@@ -10,10 +10,11 @@ export type DBUser = {
   birthday: string
   friendRequests: string[]
   gender: string
+  chats: Chat[]
   opinions: string[]
   friends: string[]
   ideology: string
-  role: string
+  role: "admin" | "user"
   __v: number
 }
 
@@ -32,17 +33,26 @@ export type UploadImagesResult = {
 
 export type Like = {
   id: string
-  creator: any
+  creator: string
 }
 
 export type Chat = {
   _id: string
   chatId: string
   messages: any[]
-  users: DBUser[]
+  users: string[]
+}
+
+export interface Message {
+  id: string
+  chatId: string
+  sender: User
+  content: string
+  createdAt: number
 }
 declare module "next-auth" {
   interface User {
+    id?: any
     name: string
     email: string
     image: string

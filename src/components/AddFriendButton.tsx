@@ -26,7 +26,7 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({
         method: "POST",
         body: JSON.stringify(senderUserId),
       }).then((res) => res.json())
-      console.log(res)
+
       if (res.success) {
         const newFriendRequest = res.newFriendRequest
         // addFriendRequest(newFriendRequest)

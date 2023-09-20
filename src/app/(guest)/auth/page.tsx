@@ -68,6 +68,10 @@ const AuthPage = ({}) => {
 
       if (variant === "LOGIN") {
         const res = await commonSignIn()
+        if (res?.error) {
+          toast.error(res.error)
+          setVariant("REGISTER")
+        }
         goToFeed(res)
       }
     } catch (err: any) {
@@ -92,7 +96,7 @@ const AuthPage = ({}) => {
   }
 
   return (
-    <section className="flex min-h-screen items-stretch bg-slate-900">
+    <section className="flex min-h-screen overflow-hidden items-stretch bg-slate-900">
       <div className="lg:flex w-1/2 hidden bg-slate-800 bg-no-repeat bg-cover relative items-center bg-bg-auth">
         <div className="absolute bg-black opacity-60 inset-0 z-0"></div>
         <div className="w-full px-24 z-10">

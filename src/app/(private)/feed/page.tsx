@@ -13,7 +13,7 @@ import React from "react"
 interface FeedPageProps {}
 
 export async function getUserFriends(_id: string) {
-  // await connectMongoDB()
+  await connectMongoDB()
   const user = await UserModel.findById({ _id }).populate("friends")
   if (!user) return
 
@@ -21,7 +21,6 @@ export async function getUserFriends(_id: string) {
 }
 
 async function getInitialOpinions() {
-  // Make sure you are connected to the database
   await connectMongoDB()
 
   try {
@@ -31,7 +30,7 @@ async function getInitialOpinions() {
       .populate({
         path: "comments",
         populate: { path: "creator", model: "User" },
-      }) // Specifying model explicitly
+      })
 
     return JSON.parse(JSON.stringify(opinions))
   } catch (error) {

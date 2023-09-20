@@ -7,6 +7,8 @@ import Messages from "@/components/Messages"
 import ChatInput from "@/components/ChatInput"
 import ChatModel from "@/models/chat"
 import { Chat, DBUser } from "@/types"
+import { connectMongoDB } from "@/lib/db"
+import { User, Session } from "next-auth"
 
 interface PageProps {
   params: {
@@ -15,49 +17,66 @@ interface PageProps {
 }
 
 async function getUsersById(userId: string, friendId: string) {
+  await connectMongoDB()
   const res = await Promise.all([
-    UserModel.findById({ _id: userId }),
-    UserModel.findById({ _id: friendId }),
+    UserModel.findById({ _id: userId }, "_id name email image chats").exec(),
+    UserModel.findById(
+      { _id: friendId },
+      "_id name email image chats role"
+    ).exec(),
   ])
 
   return JSON.parse(JSON.stringify(res))
 }
 
-async function createDbChat(chatId: string, users: DBUser[]) {
-  const chat = await ChatModel.findOne({ chatId })
-  if (chat) return JSON.parse(JSON.stringify(chat))
-
-  const newChat = await ChatModel.create({
-    chatId,
-    messages: [],
-    users,
-  })
-
-  return JSON.parse(JSON.stringify(newChat))
+async function createDbChat(chatId: string, user: User, friend: User) {
+  try {
+    const res = await fetch("http://localhost:3000/api/chat", {
+      method: "POST",
+      body: JSON.stringify({ chatId, user, friend }),
+    }).then((res) => res.json())
+    console.log(res)
+    if (res.success) {
+      return res
+    }
+  } catch (error) {
+    console.log("error in createDbChat => ", error)
+    throw error
+  }
 }
 
 const PrivateChatPage = async ({ params }: PageProps) => {
   const { chatId } = params
+
   const session = await getServerSession(authOptions)
   if (!session) redirect("/auth")
 
-  const { user } = session
   const [userId1, userId2] = chatId.split("--")
 
-  if (user._id !== userId1 && user._id !== userId2) {
+  if (session.user._id !== userId1 && session.user._id !== userId2) {
     redirect("/feed")
   }
 
-  const chatPartnerId = user._id === userId1 ? userId2 : userId1
+  const chatPartnerId = session.user._id === userId1 ? userId2 : userId1
 
   const [dbUser, dbFriend]: [DBUser, DBUser] = await getUsersById(
     userId1,
     userId2
   )
 
-  const dbChat: Chat = await createDbChat(chatId, [dbUser, dbFriend])
+  const chatPartner: User = {
+    _id: session.user._id === userId1 ? userId2 : userId1,
+    name: session.user._id === userId1 ? dbFriend.name : dbUser.name,
+    email: session.user._id === userId1 ? dbFriend.email : dbUser.email,
+    image: session.user._id === userId1 ? dbFriend.image : dbUser.image,
+    role: session.user._id === userId1 ? dbFriend.role : dbUser.role,
+  }
 
-  const chatMessages = dbChat.messages.sort((a, b) => b.createdAt - a.createdAt)
+  const dbChat: Chat = await createDbChat(chatId, session.user, chatPartner)
+
+  const chatMessages = dbChat?.messages?.sort(
+    (a, b) => b.createdAt - a.createdAt
+  )
 
   return (
     <div className="flex-1 justify-between flex flex-col h-full max-h-[calc(100vh - 6rem)] relative sm:px-0 ">
@@ -68,8 +87,8 @@ const PrivateChatPage = async ({ params }: PageProps) => {
               <Image
                 fill
                 referrerPolicy="no-referrer"
-                src={dbFriend?.image!}
-                alt={`${dbFriend?.name} profile picture`}
+                src={chatPartner.image}
+                alt={`${chatPartner.name} profile picture`}
                 className="rounded-full"
                 sizes="(max-width: 768px) 100vw,
                             (max-width: 1200px) 50vw,
@@ -81,11 +100,11 @@ const PrivateChatPage = async ({ params }: PageProps) => {
           <div className="flex flex-col leading-tight">
             <div className="text-xl flex items-center">
               <span className="text-gray-700 mr-3  font-semibold">
-                {dbFriend?.name}
+                {chatPartner.name}
               </span>
             </div>
 
-            <span className="text-sm text-gray-600">{dbFriend?.email}</span>
+            <span className="text-sm text-gray-600">{chatPartner.email}</span>
           </div>
         </div>
       </div>
@@ -93,7 +112,7 @@ const PrivateChatPage = async ({ params }: PageProps) => {
         chatId={chatId}
         chatMessages={chatMessages}
         chatPartnerId={chatPartnerId}
-        user={user}
+        user={session.user}
       />
       <ChatInput dbFriend={dbFriend} chatId={chatId} />
     </div>

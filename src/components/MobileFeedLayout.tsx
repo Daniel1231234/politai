@@ -20,13 +20,13 @@ import SidebarChatList from "./SidebarChatList"
 interface MobileFeedLayoutProps {
   user: any
   friendRequests: FriendRequest[]
-  friends: any[]
+  chats: any[] | undefined
 }
 
 const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
   user,
   friendRequests,
-  friends,
+  chats,
 }) => {
   const [open, setOpen] = useState<boolean>(false)
   const [modalOpen, setModalOpen] = useState<boolean>(false)
@@ -41,7 +41,7 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
     action: "accept" | "deny"
   ) => {
     try {
-      const res = await fetch(`/api/friends/${action}`, {
+      const res = await fetch(`/api/chats/${action}`, {
         method: "POST",
         body: JSON.stringify(senderId),
       }).then((res) => res.json())
@@ -65,7 +65,7 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
 
   const handleSignout = async () => {
     try {
-      await signOut()
+      await signOut({ callbackUrl: "/" })
     } catch (error) {
       toast.error("There was a problem signing out")
     }

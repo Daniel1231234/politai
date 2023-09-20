@@ -18,7 +18,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-10 rounded-lg">
       <div className="text-3xl font-semibold text-gray-700 mb-4">{title}</div>
       <div className="text-gray-600 mb-6">{description}</div>
-      <Button onClick={onButtonClick}>{buttonLabel}</Button>
+      {onButtonClick && <Button onClick={onButtonClick}>{buttonLabel}</Button>}
     </div>
   )
 }

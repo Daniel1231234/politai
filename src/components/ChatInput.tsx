@@ -37,9 +37,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
         method: "POST",
         body: JSON.stringify(body),
       }).then((res) => res.json())
-      console.log(res)
-      setInput("")
-      textareaRef.current?.focus()
+      if (res.success) {
+        setInput("")
+        textareaRef.current?.focus()
+      }
     } catch (err) {
       toast.error("Something went wrong, Please try again later.")
     } finally {

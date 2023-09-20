@@ -12,7 +12,7 @@ export interface OpinionDocument extends Document {
   comments: (typeof CommentModel)[]
   likes: any[]
   dislikes: any[]
-  createdAt: Date
+  createdAt: number
 }
 
 const OpinionSchema = new Schema<OpinionDocument>({
@@ -24,7 +24,7 @@ const OpinionSchema = new Schema<OpinionDocument>({
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   likes: [],
   dislikes: [],
-  createdAt: { type: Date, default: new Date() },
+  createdAt: { type: Number, default: Date.now() },
 })
 
 const OpinionModel = models.Opinion || model("Opinion", OpinionSchema)

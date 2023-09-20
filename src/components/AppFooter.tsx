@@ -1,9 +1,17 @@
-import React from "react";
-import { BsGithub } from "react-icons/bs";
+"use client"
+
+import { usePathname } from "next/navigation"
+import React from "react"
+import { BsGithub } from "react-icons/bs"
 
 interface AppFooterProps {}
 
 const AppFooter: React.FC<AppFooterProps> = ({}) => {
+  const path = usePathname()
+
+  const isChatPage = path.includes("chat")
+
+  if (isChatPage) return null
   return (
     <div className="mx-auto flex flex-col gap-1 items-center justify-center border-t-2">
       <span className="text-gray-800 text-sm font-medium">
@@ -19,7 +27,7 @@ const AppFooter: React.FC<AppFooterProps> = ({}) => {
         <BsGithub className="w-6 h-6 text-gray-800" />
       </a>
     </div>
-  );
-};
+  )
+}
 
-export default AppFooter;
+export default AppFooter

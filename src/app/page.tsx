@@ -24,10 +24,10 @@ const Home = async () => {
           </li>
         </ul>
       </header>
-      <div className="pt-4">
+      <div className="pt-4 container">
         <div className="mx-auto flex flex-wrap items-center justify-center gap-4">
-          <div className="w-full md:w-2/5 text-center md:text-left">
-            <h1 className="my-4 text-3xl md:text-5xl md:leading-tight font-bold  ">
+          <div className="w-full md:w-2/5 text-center md:text-left  ">
+            <h1 className="my-4 text-3xl md:text-5xl md:leading-tight font-bold   ">
               Connect with Politai-Social and Engage in Politics Like Never
               Before!
             </h1>
@@ -42,9 +42,10 @@ const Home = async () => {
               Explore Politai now!
             </Link>
           </div>
-          <div className="py-6 w-[350px] h-[350px] text-center relative">
+          <div className="py-6 text-center relative">
             <Image
-              fill
+              width={350}
+              height={350}
               sizes="60vw"
               priority
               className="rounded-full opacity-80 mx-auto"

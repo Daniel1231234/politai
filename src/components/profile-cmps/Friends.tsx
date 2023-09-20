@@ -6,6 +6,7 @@ import React, { useState } from "react"
 import { toast } from "react-hot-toast"
 import EmptyState from "../EmptyState"
 import { UserDocument } from "@/models/user"
+import { hrefContructor } from "@/lib/utils"
 
 interface FriendsProps {
   user: UserDocument
@@ -32,8 +33,7 @@ const Friends: React.FC<FriendsProps> = ({ user, isUserProfile }) => {
   }
 
   const handleStartChat = (friendId: string) => {
-    console.log("start chating")
-    // Logic to start a private chat with the friend
+    router.push(`/chat/${hrefContructor(user._id, friendId)}`)
   }
 
   return (

@@ -7,13 +7,16 @@ import { FaHome } from "react-icons/fa"
 import { SiWechat } from "react-icons/si"
 import FeedHeader from "@/components/FeedHeader"
 import UserModel from "@/models/user"
-import { FriendRequest } from "@/types"
+import { Chat, FriendRequest } from "@/types"
 import AppFooter from "@/components/AppFooter"
 import MobileFeedLayout from "@/components/MobileFeedLayout"
 import { getUserFriends } from "./feed/page"
 import SidebarChatList from "@/components/SidebarChatList"
+import { runAws } from "@/lib/aws"
+import { connectMongoDB } from "@/lib/db"
 
 async function getUserFriendRequests(userId: string) {
+  await connectMongoDB()
   try {
     const user = await UserModel.findById({ _id: userId })
     if (!user)
@@ -24,18 +27,30 @@ async function getUserFriendRequests(userId: string) {
   }
 }
 
+async function getUserChats(userId: string) {
+  try {
+    await connectMongoDB()
+    const user = await UserModel.findById({ _id: userId }).populate("chats")
+    if (!user) return
+
+    return JSON.parse(JSON.stringify(user?.chats))
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
 interface LayoutProps {
   children: React.ReactNode
 }
 
 const FeedLayout = async ({ children }: LayoutProps) => {
   const session = await getServerSession(authOptions)
-  if (!session?.user) redirect("/auth")
-
+  if (!session) redirect("/auth")
+  // await runAws()
   const user = session.user
   const friendRequests: FriendRequest[] = await getUserFriendRequests(user._id)
-
-  const friends = await getUserFriends(user._id)
+  const chats: Chat[] = await getUserChats(user._id)
 
   return (
     <>
@@ -44,14 +59,14 @@ const FeedLayout = async ({ children }: LayoutProps) => {
           <MobileFeedLayout
             user={user}
             friendRequests={friendRequests}
-            friends={friends}
+            chats={chats}
           />
         </div>
         <div className="hidden lg:block">
           <FeedHeader user={user} friendRequests={friendRequests} />
         </div>
         <div className="w-full flex h-[calc(100vh-66px)]">
-          <div className="hidden lg:flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r dark:border-none px-6">
+          <div className="hidden lg:flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto px-6">
             <nav className="flex flex-1 flex-col border-r-4">
               <ul
                 role="list"
@@ -94,25 +109,8 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                     </li>
 
                     <li>
-                      <Link
-                        href="/chat"
-                        className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"
-                      >
-                        <span className="text-gray-400 border-gray-400">
-                          <SiWechat className="h-9 w-9 rounded-full" />
-                        </span>
-                        <span className="truncate">Chat</span>
-                      </Link>
-                      {friends.length > 0 && (
-                        <div className="text-xs font-semibold leading-6 text-green-400 ">
-                          Your chats
-                        </div>
-                      )}
                       <div>
-                        <SidebarChatList
-                          friends={friends}
-                          sessionId={user._id}
-                        />
+                        <SidebarChatList chats={chats} sessionId={user._id} />
                       </div>
                     </li>
                   </ul>
@@ -123,7 +121,7 @@ const FeedLayout = async ({ children }: LayoutProps) => {
               </ul>
             </nav>
           </div>
-          <aside className="py-16 px-6 lg:py-12  w-full overflow-y-auto">
+          <aside className="py-16 px-4 w-full overflow-y-auto lg:py-12">
             {children}
           </aside>
         </div>

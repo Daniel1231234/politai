@@ -44,3 +44,22 @@ export const POST = async (req: Request) => {
     )
   }
 }
+
+export const DELETE = async (req: Request) => {
+  try {
+    await connectMongoDB()
+    const session = await getServerSession(authOptions)
+    if (!session)
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      )
+    const chatId = await req.json()
+  } catch (error) {
+    console.log(error)
+    return NextResponse.json(
+      { success: false, error: "Something went wrong!" },
+      { status: 500 }
+    )
+  }
+}
