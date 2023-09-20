@@ -40,7 +40,7 @@ export type Chat = {
   _id: string
   chatId: string
   messages: any[]
-  users: string[]
+  users: string[] | User[]
 }
 
 export interface Message {

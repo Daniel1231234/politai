@@ -4,15 +4,12 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { FaHome } from "react-icons/fa"
-import { SiWechat } from "react-icons/si"
 import FeedHeader from "@/components/FeedHeader"
 import UserModel from "@/models/user"
 import { Chat, FriendRequest } from "@/types"
 import AppFooter from "@/components/AppFooter"
 import MobileFeedLayout from "@/components/MobileFeedLayout"
-import { getUserFriends } from "./feed/page"
 import SidebarChatList from "@/components/SidebarChatList"
-import { runAws } from "@/lib/aws"
 import { connectMongoDB } from "@/lib/db"
 
 async function getUserFriendRequests(userId: string) {
@@ -47,23 +44,24 @@ interface LayoutProps {
 const FeedLayout = async ({ children }: LayoutProps) => {
   const session = await getServerSession(authOptions)
   if (!session) redirect("/auth")
-  // await runAws()
-  const user = session.user
-  const friendRequests: FriendRequest[] = await getUserFriendRequests(user._id)
-  const chats: Chat[] = await getUserChats(user._id)
+
+  const friendRequests: FriendRequest[] = await getUserFriendRequests(
+    session.user._id
+  )
+  const chats: Chat[] = await getUserChats(session.user._id)
 
   return (
     <>
       <section className="bg-light-1">
         <div className="lg:hidden">
           <MobileFeedLayout
-            user={user}
+            user={session.user}
             friendRequests={friendRequests}
             chats={chats}
           />
         </div>
         <div className="hidden lg:block">
-          <FeedHeader user={user} friendRequests={friendRequests} />
+          <FeedHeader user={session.user} friendRequests={friendRequests} />
         </div>
         <div className="w-full flex h-[calc(100vh-66px)]">
           <div className="hidden lg:flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto px-6">
@@ -88,11 +86,11 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                             className="rounded-full"
                             width={36}
                             height={36}
-                            src={user.image!}
-                            alt={user?.name as string}
+                            src={session.user.image!}
+                            alt={session.user?.name as string}
                           />
                         </span>
-                        <span className="truncate">{user?.name}</span>
+                        <span className="truncate">{session.user?.name}</span>
                       </Link>
                     </li>
 
@@ -110,7 +108,10 @@ const FeedLayout = async ({ children }: LayoutProps) => {
 
                     <li>
                       <div>
-                        <SidebarChatList chats={chats} sessionId={user._id} />
+                        <SidebarChatList
+                          chats={chats}
+                          sessionId={session.user._id}
+                        />
                       </div>
                     </li>
                   </ul>

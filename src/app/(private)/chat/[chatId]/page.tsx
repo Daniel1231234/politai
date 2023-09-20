@@ -19,11 +19,8 @@ interface PageProps {
 async function getUsersById(userId: string, friendId: string) {
   await connectMongoDB()
   const res = await Promise.all([
-    UserModel.findById({ _id: userId }, "_id name email image chats").exec(),
-    UserModel.findById(
-      { _id: friendId },
-      "_id name email image chats role"
-    ).exec(),
+    UserModel.findById({ _id: userId }, "_id name email image chats"),
+    UserModel.findById({ _id: friendId }, "_id name email image chats role"),
   ])
 
   return JSON.parse(JSON.stringify(res))
@@ -63,6 +60,9 @@ const PrivateChatPage = async ({ params }: PageProps) => {
     userId1,
     userId2
   )
+
+  console.log("dbUser => ", dbUser)
+  console.log("dbFriend => ", dbFriend)
 
   const chatPartner: User = {
     _id: session.user._id === userId1 ? userId2 : userId1,

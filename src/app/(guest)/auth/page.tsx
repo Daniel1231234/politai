@@ -10,6 +10,11 @@ import GoogleSignin from "@/components/GoogleSignin"
 
 type Variant = "LOGIN" | "REGISTER"
 
+interface Err {
+  error: string
+  [key: string]: any
+}
+
 const AuthPage = ({}) => {
   const router = useRouter()
   const [variant, setVariant] = useState<Variant>("LOGIN")
@@ -40,15 +45,15 @@ const AuthPage = ({}) => {
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     setIsLoading(true)
     try {
-      const commonSignIn = async () => {
-        return await signIn("credentials", {
+      const commonSignIn = async (): Promise<Err> => {
+        return (await signIn("credentials", {
           email: data.email,
           password: data.password,
           redirect: false,
-        })
+        })) as Err
       }
 
-      const goToFeed = (res: any) => {
+      const goToFeed = (res: Err) => {
         if (res?.error) return new Error(res.error)
         else {
           router.replace("/feed")
@@ -74,10 +79,12 @@ const AuthPage = ({}) => {
         }
         goToFeed(res)
       }
-    } catch (err: any) {
-      toast.error("Something went wrong!")
-      console.error("Something went wrong:", err.message)
-      console.error(err.stack)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error("Something went wrong!")
+        console.error("Something went wrong:", err.message)
+        console.error(err.stack)
+      }
     } finally {
       reset()
       setIsLoading(false)
@@ -88,8 +95,10 @@ const AuthPage = ({}) => {
     setIsGoogleLoading(true)
     try {
       await signIn("google")
-    } catch (error) {
-      toast.error("Something went wrong with your login.")
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error("Something went wrong with your login.")
+      }
     } finally {
       setIsGoogleLoading(false)
     }

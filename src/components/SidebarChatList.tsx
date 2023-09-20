@@ -10,7 +10,7 @@ import Link from "next/link"
 import { SiWechat } from "react-icons/si"
 
 interface SidebarChatListProps {
-  chats: any[] | undefined
+  chats: Chat[]
   sessionId: string
 }
 
@@ -20,7 +20,6 @@ const SidebarChatList: React.FC<SidebarChatListProps> = ({
 }) => {
   const path = usePathname()
   const router = useRouter()
-  // const [chats, setChats] = useState<Chat[] | []>([])
 
   const [unseenMsgs, setUnseenMsgs] = useState<Message[]>([])
   const [isOpenSubMenu, setIsOpenSubMenu] = useState<boolean>(false)
@@ -52,11 +51,15 @@ const SidebarChatList: React.FC<SidebarChatListProps> = ({
         >
           {chats?.sort().map((chat) => {
             const unseenMsgsCount = unseenMsgs.filter((unseenMsg) => {
-              return unseenMsg.sender._id === chat.id
+              return unseenMsg.sender._id === chat._id
             }).length
 
             const href = `/chat/${hrefContructor(sessionId, chat._id)}`
             const isActive = path === href
+
+            const friendName = chat.users.find(
+              (usr) => usr._id !== sessionId
+            ).name
 
             return (
               <li key={chat._id} className="relative">
@@ -66,7 +69,7 @@ const SidebarChatList: React.FC<SidebarChatListProps> = ({
                   }`}
                   href={href}
                 >
-                  {chat.friendName}
+                  {friendName}
                   {unseenMsgs.length > 0 && (
                     <div className="bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center">
                       {unseenMsgsCount}

@@ -10,54 +10,41 @@ import RemoveChatBtn from "@/components/RemoveChatBtn"
 import { connectMongoDB } from "@/lib/db"
 import UserModel from "@/models/user"
 import EmptyState from "@/components/EmptyState"
+import { Chat } from "@/types"
+import ManageChat from "@/components/ManageChat"
 
 interface ChatPageProps {}
+
+async function getUserChats(userId: string) {
+  try {
+    await connectMongoDB()
+    const user = await UserModel.findById({ _id: userId }).populate("chats")
+    if (!user) return
+
+    return JSON.parse(JSON.stringify(user?.chats))
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
 
 const ChatPage = async ({}: ChatPageProps) => {
   const session = await getServerSession(authOptions)
   if (!session) redirect("/auth")
 
-  const userChats: any[] = []
+  const userChats: Chat[] = await getUserChats(session.user._id)
 
   return (
     <div className="container rounded-md py-12 sm:py-8 ">
-      <h1 className="font-bold text-5xl mb-8">Recent chats</h1>
-      {!userChats && (
-        <Link href={`/profile/${session.user._id}`}>
-          Start private chat with your friends{" "}
-        </Link>
+      {!userChats || userChats.length === 0 ? (
+        <EmptyState
+          title="You dont have active chats yet"
+          description=""
+          buttonLabel=""
+        />
+      ) : (
+        <ManageChat userChats={userChats} sessionId={session.user._id} />
       )}
-      {userChats?.map((friend: any) => (
-        <div
-          key={friend._id}
-          className="relative bg-zinc-50 border border-zinc-200 p-3 rounded-md"
-        >
-          <Link
-            href={`/chat/${hrefContructor(session.user._id, friend._id)}`}
-            className="absolute right-4 inset-y-0 flex items-center z-10"
-          >
-            <FaChevronRight className="h-7 w-7 text-zinc-400 hover:text-zinc-700" />
-          </Link>
-          <RemoveChatBtn />
-          <div className="relative sm:flex">
-            <div className="mb-4 flex-shrink-0 sm:mb-0 sm:mr-4">
-              <div className="relative h-6 w-6">
-                <Image
-                  fill
-                  referrerPolicy="no-referrer"
-                  className="rounded-full"
-                  alt={`${friend.name} profile picture`}
-                  src={friend.image}
-                  sizes="(max-width: 768px) 100vw,
-                              (max-width: 1200px) 50vw,
-                              33vw"
-                />
-              </div>
-            </div>
-            <h4 className="text-lg font-semibold">{friend.name}</h4>
-          </div>
-        </div>
-      ))}
     </div>
   )
 }
