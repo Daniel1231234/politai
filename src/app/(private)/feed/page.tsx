@@ -24,7 +24,7 @@ const FeedPage = async ({}: FeedPageProps) => {
       <Divider />
       <OpinionList
         initialOpinions={initialOpinions}
-        user={session.user as UserDocument}
+        user={session.user}
         userFriends={userFriends}
       />
     </>

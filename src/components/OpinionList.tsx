@@ -3,15 +3,14 @@
 import toast from "react-hot-toast"
 import React, { useEffect, useState } from "react"
 import OpinionPreview from "./OpinionPreview"
-import { OpinionDocument } from "@/models/opinion"
 import EmptyState from "./EmptyState"
 import AddOpinionModal from "./AddOpinionModal"
-import { UserDocument } from "@/models/user"
 import axios from "axios"
+import { User } from "next-auth"
 
 interface OpinionListProps {
   initialOpinions: any
-  user: UserDocument
+  user: User
   userFriends: any
 }
 
@@ -24,7 +23,7 @@ const OpinionList: React.FC<OpinionListProps> = ({
   const [isAdding, setIsAdding] = useState(false)
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
-  const onAddFriend = async (senderUser: UserDocument) => {
+  const onAddFriend = async (senderUser: User) => {
     setIsAdding(true)
     try {
       const { data } = await axios.post("/api/friends/add", {
@@ -79,7 +78,11 @@ const OpinionList: React.FC<OpinionListProps> = ({
           })}
         </div>
       </section>
-      <AddOpinionModal isOpen={isOpen} setIsOpen={setIsOpen} user={user} />
+      <AddOpinionModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        username={user.name}
+      />
     </>
   )
 }

@@ -3,7 +3,6 @@
 import Image from "next/image"
 import React, { useState } from "react"
 import AddOpinionModal from "./AddOpinionModal"
-import { UserDocument } from "@/models/user"
 
 interface NewOpinionInputProps {
   user: any
@@ -37,7 +36,7 @@ const NewOpinionInput: React.FC<NewOpinionInputProps> = ({ user }) => {
       <AddOpinionModal
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        user={user as any}
+        username={user.name}
       />
     </>
   )

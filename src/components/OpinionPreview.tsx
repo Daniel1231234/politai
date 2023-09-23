@@ -19,14 +19,15 @@ import { BiMessageSquareAdd } from "react-icons/bi"
 import { CldImage } from "next-cloudinary"
 import { CommentDocument } from "@/models/comment"
 import axios from "axios"
+import { User } from "next-auth"
 
 interface OpinionPreviewProps {
   opinion: any
   isFriends: boolean
   isUserOpinion?: boolean
-  onAddFriend: (userToAdd: UserDocument) => Promise<void>
+  onAddFriend: (userToAdd: User) => Promise<void>
 
-  user: UserDocument
+  user: User
 }
 
 const OpinionPreview: React.FC<OpinionPreviewProps> = ({
@@ -34,7 +35,6 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
   isFriends,
   isUserOpinion,
   onAddFriend,
-
   user,
 }) => {
   const router = useRouter()
