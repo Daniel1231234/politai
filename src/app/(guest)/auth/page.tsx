@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast"
 import { signIn } from "next-auth/react"
 import Input from "../../../components/Input"
 import GoogleSignin from "@/components/GoogleSignin"
+import axios from "axios"
 
 type Variant = "LOGIN" | "REGISTER"
 
@@ -62,11 +63,7 @@ const AuthPage = ({}) => {
       }
 
       if (variant === "REGISTER") {
-        await fetch("/api/auth/users", {
-          method: "POST",
-          body: JSON.stringify(data),
-        }).then((res) => res.json())
-
+        await axios.post("/api/auth/users", data)
         const res = await commonSignIn()
         goToFeed(res)
       }
