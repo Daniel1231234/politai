@@ -25,7 +25,6 @@ const SidebarChatList: React.FC<SidebarChatListProps> = ({
   const [isOpenSubMenu, setIsOpenSubMenu] = useState<boolean>(false)
 
   useEffect(() => {
-    console.log(chats)
     if (path?.includes("chat")) {
       setUnseenMsgs((prev) => {
         return prev.filter((msg) => !path.includes(msg.sender._id))
