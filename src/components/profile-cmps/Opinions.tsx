@@ -6,16 +6,21 @@ import Button from "../Button"
 import { UserDocument } from "@/models/user"
 
 interface OpinionsProps {
-  user: UserDocument
   isUserProfile: boolean
+  opinions: any
+  username: string
 }
 
-const Opinions: React.FC<OpinionsProps> = ({ user, isUserProfile }) => {
+const Opinions: React.FC<OpinionsProps> = ({
+  username,
+  isUserProfile,
+  opinions,
+}) => {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
-      {user.opinions.length > 0 ? (
+      {opinions.length > 0 ? (
         <div className="relative grid gap-6 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-y-auto p-6 pt-12">
           {isUserProfile && (
             <Button
@@ -25,15 +30,15 @@ const Opinions: React.FC<OpinionsProps> = ({ user, isUserProfile }) => {
               Create New Opinion
             </Button>
           )}
-          {user.opinions.map((opinion: any) => (
+          {opinions.map((opinion: any) => (
             <div
               key={opinion._id}
               className="rounded-lg shadow-lg overflow-hidden transition-transform duration-300 transform hover:-translate-y-2 hover:shadow-xl"
             >
               <OpinionItem
                 item={opinion}
-                img={user.image!}
-                creatorName={user.name!}
+                img={opinion.creator.image!}
+                creatorName={opinion.creator.name!}
               />
             </div>
           ))}
@@ -48,7 +53,11 @@ const Opinions: React.FC<OpinionsProps> = ({ user, isUserProfile }) => {
           />
         </div>
       )}
-      <AddOpinionModal isOpen={isOpen} setIsOpen={setIsOpen} user={user} />
+      <AddOpinionModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        username={username}
+      />
     </>
   )
 }

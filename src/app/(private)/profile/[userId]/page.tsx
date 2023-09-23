@@ -1,6 +1,5 @@
 import React from "react"
 import { redirect } from "next/navigation"
-import UserModel from "../../../../models/user"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import AddFriendButton from "@/components/AddFriendButton"
@@ -8,7 +7,8 @@ import { FriendRequest } from "@/types"
 import Divider from "@/components/Divider"
 import ProfileHeader from "@/components/ProfileHeader"
 import ProfileContent from "@/components/profile-cmps/ProfileContent"
-import { connectMongoDB } from "@/lib/db"
+import { User } from "next-auth"
+import { getUserById, getUserFriends, getUserOpinions } from "@/actions"
 
 interface ProfilePageProps {
   params: {
@@ -16,20 +16,13 @@ interface ProfilePageProps {
   }
 }
 
-async function getUserById(userId: string) {
-  try {
-    await connectMongoDB()
-    return await UserModel.findById({ _id: userId })
-      .populate("opinions")
-      .populate("friends")
-  } catch (error) {
-    throw error
-  }
-}
-
 const ProfilePage = async ({ params }: ProfilePageProps) => {
   const session = await getServerSession(authOptions)
   if (!session) redirect("/auth")
+
+  const opinions = await getUserOpinions(session.user._id)
+
+  const friends: User[] = await getUserFriends(session.user._id)
 
   const user = await JSON.parse(
     JSON.stringify(await getUserById(params.userId))
@@ -57,7 +50,14 @@ const ProfilePage = async ({ params }: ProfilePageProps) => {
       )}
       <ProfileHeader user={user} isUserProfile={isUserProfile} />
       <Divider />
-      <ProfileContent user={user} isUserProfile={isUserProfile} />
+      <ProfileContent
+        user={user}
+        isUserProfile={isUserProfile}
+        opinions={opinions}
+        friends={friends}
+        sessionId={session.user._id}
+        username={session.user.name}
+      />
     </div>
   )
 }

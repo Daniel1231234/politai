@@ -5,37 +5,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { FaHome } from "react-icons/fa"
 import FeedHeader from "@/components/FeedHeader"
-import UserModel from "@/models/user"
 import { Chat, FriendRequest } from "@/types"
 import AppFooter from "@/components/AppFooter"
 import MobileFeedLayout from "@/components/MobileFeedLayout"
 import SidebarChatList from "@/components/SidebarChatList"
-import { connectMongoDB } from "@/lib/db"
-
-async function getUserFriendRequests(userId: string) {
-  await connectMongoDB()
-  try {
-    const user = await UserModel.findById({ _id: userId })
-    if (!user)
-      throw new Error("User not found while getting his friend requests")
-    return user.friendRequests
-  } catch (error) {
-    throw error
-  }
-}
-
-async function getUserChats(userId: string) {
-  try {
-    await connectMongoDB()
-    const user = await UserModel.findById({ _id: userId }).populate("chats")
-    if (!user) return
-
-    return JSON.parse(JSON.stringify(user?.chats))
-  } catch (error) {
-    console.log(error)
-    throw error
-  }
-}
+import { getUserChats, getUserFriendRequests } from "@/actions"
 
 interface LayoutProps {
   children: React.ReactNode

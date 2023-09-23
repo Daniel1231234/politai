@@ -7,6 +7,7 @@ import { OpinionDocument } from "@/models/opinion"
 import EmptyState from "./EmptyState"
 import AddOpinionModal from "./AddOpinionModal"
 import { UserDocument } from "@/models/user"
+import axios from "axios"
 
 interface OpinionListProps {
   initialOpinions: any
@@ -26,22 +27,21 @@ const OpinionList: React.FC<OpinionListProps> = ({
   const onAddFriend = async (senderUser: UserDocument) => {
     setIsAdding(true)
     try {
-      if (senderUser.friendRequests) {
-      }
-      const res = await fetch("/api/friends/add", {
-        method: "POST",
-        body: JSON.stringify(senderUser._id),
-      }).then((res) => res.json())
-      if (!res.success) {
-        toast.error(res.message)
+      const { data } = await axios.post("/api/friends/add", {
+        senderUserId: senderUser._id,
+      })
+
+      if (!data.success) {
+        toast.error(data.message)
         return
       }
-      if (res.success) {
+      if (data.success) {
         toast.success(`Friend request sent`)
       }
     } catch (error: any) {
       console.log(error)
       toast.error("Something went wrong!")
+      throw error
     } finally {
       setIsAdding(false)
     }

@@ -5,24 +5,29 @@ import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { toast } from "react-hot-toast"
 import EmptyState from "../EmptyState"
-import { UserDocument } from "@/models/user"
 import { hrefContructor } from "@/lib/utils"
+import axios from "axios"
+import { User } from "next-auth"
 
 interface FriendsProps {
-  user: UserDocument
   isAllreadyFrinds?: boolean
   isUserProfile: boolean
+  friends: any
+  sessionId: string
 }
 
-const Friends: React.FC<FriendsProps> = ({ user, isUserProfile }) => {
+const Friends: React.FC<FriendsProps> = ({
+  isUserProfile,
+  friends,
+  sessionId,
+}) => {
   const router = useRouter()
 
   const handleDeleteFriend = async (friendId: string) => {
     try {
-      const res: any = await fetch(`/api/friends/remove/${friendId}`, {
-        method: "DELETE",
-      }).then((res) => res.json())
-      if (res.success === true) {
+      const { data } = await axios.delete(`/api/friends/remove/${friendId}`)
+
+      if (data.success === true) {
         toast.success("Friend delete successfully")
       }
       router.refresh()
@@ -32,14 +37,28 @@ const Friends: React.FC<FriendsProps> = ({ user, isUserProfile }) => {
     }
   }
 
-  const handleStartChat = (friendId: string) => {
-    router.push(`/chat/${hrefContructor(user._id, friendId)}`)
+  const handleStartChat = async (friend: User) => {
+    try {
+      const chatId = hrefContructor(sessionId, friend._id)
+      console.log(chatId)
+      const { data } = await axios.post("/api/chat", {
+        chatId,
+        friend,
+      })
+      console.log(data)
+      if (data.success) {
+        router.push(`/chat/${hrefContructor(sessionId, friend._id)}`)
+      }
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
   }
 
   return (
     <div id="friends" className="w-full">
-      {user.friends.length > 0 ? (
-        user.friends.map((friend: any) => (
+      {friends.length > 0 ? (
+        friends.map((friend: any) => (
           <div
             key={friend._id}
             className="flex items-center justify-between p-4 border-b border-gray-200"
@@ -60,7 +79,7 @@ const Friends: React.FC<FriendsProps> = ({ user, isUserProfile }) => {
                 </button>
                 <button
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-full hover:bg-blue-600"
-                  onClick={() => handleStartChat(friend._id)}
+                  onClick={() => handleStartChat(friend)}
                 >
                   Private Chat
                 </button>

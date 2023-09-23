@@ -5,6 +5,7 @@ import Button from "./Button"
 import { toast } from "react-hot-toast"
 import { FaUserPlus } from "react-icons/fa"
 import useFriendRequests from "@/hooks/useFriendRequests"
+import axios from "axios"
 
 interface AddFriendButtonProps {
   userToAdd: any
@@ -22,13 +23,10 @@ const AddFriendButton: React.FC<AddFriendButtonProps> = ({
     setIsAdding(true)
     try {
       const senderUserId = userToAdd._id
-      const res = await fetch("/api/friends/add", {
-        method: "POST",
-        body: JSON.stringify(senderUserId),
-      }).then((res) => res.json())
+      const { data } = await axios.post("/api/friends/add", { senderUserId })
 
-      if (res.success) {
-        const newFriendRequest = res.newFriendRequest
+      if (data.success) {
+        const newFriendRequest = data.newFriendRequest
         // addFriendRequest(newFriendRequest)
         toast.success(`Request sent to ${userToAdd.name}`)
       }

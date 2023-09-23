@@ -12,7 +12,7 @@ export const POST = async (req: Request) => {
 
     await connectMongoDB()
 
-    const senderUserId: string = await req.json()
+    const { senderUserId } = await req.json()
 
     // Check if a friend request from the session user already exists
     const existingReceiver = await UserModel.findById(senderUserId)

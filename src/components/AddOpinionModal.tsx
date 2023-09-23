@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 import { UserDocument } from "@/models/user"
 import { CldUploadButton, CldImage } from "next-cloudinary"
 import { getEmptyOpinion } from "@/lib/utils"
+import axios from "axios"
 
 const animatedComponents = makeAnimated()
 
@@ -23,13 +24,13 @@ const emptyOpinion = getEmptyOpinion()
 interface AddOpinionModalProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  user: UserDocument
+  username: string
 }
 
 const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
   isOpen,
   setIsOpen,
-  user,
+  username,
 }) => {
   const [topics, setTopics] = useState<string[]>(["general"])
   const [opinion, setOpinion] = useState<createOpinionDto>(emptyOpinion)
@@ -48,11 +49,9 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
     try {
       if (imageId) opinion.images!.push(imageId)
       const opinionToSend = { ...opinion, topics }
-      const res = await fetch("/api/opinion", {
-        method: "POST",
-        body: JSON.stringify(opinionToSend),
-      }).then((res) => res.json())
-      if (res.success) toast.success("Opinion added Successfully!")
+      const { data } = await axios.post("/api/opinion", opinionToSend)
+
+      if (data.success) toast.success("Opinion added Successfully!")
       router.refresh()
     } catch (error) {
       toast.error("Something went wrong, please try again later")
@@ -126,7 +125,7 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
                         body: e.target.value,
                       }))
                     }
-                    placeholder={`Make your voice heard, ${user?.name}!`}
+                    placeholder={`Make your voice heard, ${username}!`}
                     className="block w-full  border-0 bg-transparent text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:py-1.5 sm:text-sm sm:leading-6 min-h-[80px]"
                   />
                   <div className="image">

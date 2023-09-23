@@ -18,7 +18,7 @@ export const POST = async (req: Request, { params }: Props) => {
 
     if (!session) return new Response("Unauthorized", { status: 400 })
 
-    const senderId = await req.json()
+    const { senderId } = await req.json()
 
     const commonUpdate = {
       $pull: { friendRequests: { senderId } }, // Remove friend request for both accept and deny

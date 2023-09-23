@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import FriendRequestPreviewModal from "./FriendRequestPreviewModal"
 import { FriendRequest } from "@/types"
 import { UserDocument } from "@/models/user"
+import axios from "axios"
 
 interface MenuDropdownProps {
   user: UserDocument
@@ -31,11 +32,9 @@ const MenuDropdown: React.FC<MenuDropdownProps> = ({
     action: "accept" | "deny"
   ) => {
     try {
-      const res = await fetch(`/api/friends/${action}`, {
-        method: "POST",
-        body: JSON.stringify(senderId),
-      }).then((res) => res.json())
-      if (res.success) {
+      const { data } = await axios.post(`/api/friends/${action}`, { senderId })
+
+      if (data.success) {
         toast.success(`You have successfully ${action}ed the friend request`)
         router.refresh()
       }

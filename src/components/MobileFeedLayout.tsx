@@ -16,6 +16,7 @@ import { MdClose } from "react-icons/md"
 import { FriendRequest } from "@/types"
 import { SiWechat } from "react-icons/si"
 import SidebarChatList from "./SidebarChatList"
+import axios from "axios"
 
 interface MobileFeedLayoutProps {
   user: any
@@ -41,11 +42,9 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
     action: "accept" | "deny"
   ) => {
     try {
-      const res = await fetch(`/api/chats/${action}`, {
-        method: "POST",
-        body: JSON.stringify(senderId),
-      }).then((res) => res.json())
-      if (res.success) {
+      const { data } = await axios.post(`/api/chats/${action}`, senderId)
+
+      if (data.success) {
         toast.success(`You have successfully ${action}ed the friend request`)
       }
     } catch (error) {

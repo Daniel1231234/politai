@@ -10,6 +10,10 @@ import { UserDocument } from "@/models/user"
 interface ProfileContentProps {
   user: UserDocument
   isUserProfile: boolean
+  opinions: any
+  friends: any
+  sessionId: string
+  username: string
 }
 
 type Variant = "OPINIONS" | "ABOUT" | "FRIENDS"
@@ -17,15 +21,34 @@ type Variant = "OPINIONS" | "ABOUT" | "FRIENDS"
 const ProfileContent: React.FC<ProfileContentProps> = ({
   user,
   isUserProfile,
+  friends,
+  sessionId,
+  opinions,
+  username,
 }) => {
   const [variant, setVariant] = useState<Variant>("OPINIONS")
 
   const content = () => {
-    if (variant === "ABOUT") return <About user={user} />
-    if (variant === "FRIENDS")
-      return <Friends user={user} isUserProfile={isUserProfile} />
-    if (variant === "OPINIONS")
-      return <Opinions user={user} isUserProfile={isUserProfile} />
+    switch (variant) {
+      case "ABOUT":
+        return <About user={user} />
+      case "FRIENDS":
+        return (
+          <Friends
+            friends={friends}
+            isUserProfile={isUserProfile}
+            sessionId={sessionId}
+          />
+        )
+      case "OPINIONS":
+        return (
+          <Opinions
+            isUserProfile={isUserProfile}
+            opinions={opinions}
+            username={username}
+          />
+        )
+    }
   }
 
   return (

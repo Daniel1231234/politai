@@ -8,9 +8,12 @@ import UserModel from "@/models/user"
 export const POST = async (req: Request) => {
   await connectMongoDB()
   try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ success: false })
+    const { user } = session
 
-    const { chatId, user, friend } = await req.json()
-    let chat = await ChatModel.findOne({ chatId }).exec()
+    const { chatId, friend } = await req.json()
+    let chat = await ChatModel.findOne({ chatId })
 
     if (!chat) {
       chat = await ChatModel.create({
@@ -18,8 +21,6 @@ export const POST = async (req: Request) => {
         messages: [],
         users: [user, friend],
       })
-
-      console.log("chat from route => ", chat)
 
       const updates = [
         UserModel.findByIdAndUpdate(

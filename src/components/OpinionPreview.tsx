@@ -18,6 +18,7 @@ import { FaThumbsUp, FaThumbsDown } from "react-icons/fa"
 import { BiMessageSquareAdd } from "react-icons/bi"
 import { CldImage } from "next-cloudinary"
 import { CommentDocument } from "@/models/comment"
+import axios from "axios"
 
 interface OpinionPreviewProps {
   opinion: any
@@ -55,11 +56,12 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
     e.preventDefault()
     setIsLoading(true)
     try {
-      const res = await fetch(`/api/opinion/comment/${opinion._id}`, {
-        method: "POST",
-        body: JSON.stringify(commentText),
-      }).then((res) => res.json())
-      if (res.success) {
+      const { data } = await axios.post(
+        `/api/opinion/comment/${opinion._id}`,
+        commentText
+      )
+
+      if (data.success) {
         setCommentText("")
       }
     } catch (err) {
@@ -77,11 +79,12 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
     e.stopPropagation()
     setIsLoading(true)
     try {
-      const res = await fetch(`/api/opinion/comment/${opinion._id}`, {
-        method: "DELETE",
-        body: JSON.stringify(commentid),
-      }).then((res) => res.json())
-      if (res.success) {
+      const { data } = await axios.delete(
+        `/api/opinion/comment/${opinion._id}`,
+        { data: commentid }
+      )
+
+      if (data.success) {
         toast.success("Successfully deleting comment!")
       }
     } catch (err) {
@@ -94,9 +97,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   const handleNewLike = async () => {
     try {
-      await fetch(`/api/opinion/like/${opinion._id}`, {
-        method: "POST",
-      }).then((res) => res.json())
+      await axios.post(`/api/opinion/like/${opinion._id}`)
     } catch (err) {
       console.log(err)
       toast.error("Something went wrong")
@@ -132,7 +133,10 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
               src={opinion.creator.image}
               alt="User Profile"
             />
-            <div className="ml-2 cursor-pointer">
+            <div
+              className="ml-2 cursor-pointer"
+              onClick={() => router.push(`/profile/${opinion.creator._id}`)}
+            >
               <span className="block font-semibold text-lg text-black">
                 {opinion.creator.name}
               </span>

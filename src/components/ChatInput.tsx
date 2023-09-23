@@ -7,6 +7,7 @@ import TextareaAutosize from "react-textarea-autosize"
 import Button, { buttonVariants } from "./Button"
 import { toast } from "react-hot-toast"
 import { BsFillImageFill, BsEmojiWink } from "react-icons/bs"
+import axios from "axios"
 
 interface ChatInputProps {
   dbFriend: any
@@ -33,11 +34,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
         chatId,
         content: input,
       }
-      const res = await fetch("/api/chat/message/send", {
-        method: "POST",
-        body: JSON.stringify(body),
-      }).then((res) => res.json())
-      if (res.success) {
+      const { data } = await axios.post("/api/chat/message/send", body)
+      if (data.success) {
         setInput("")
         textareaRef.current?.focus()
       }

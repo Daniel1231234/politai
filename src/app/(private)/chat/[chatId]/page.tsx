@@ -2,43 +2,14 @@ import Image from "next/image"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
-import UserModel from "@/models/user"
 import Messages from "@/components/Messages"
 import ChatInput from "@/components/ChatInput"
-import ChatModel from "@/models/chat"
-import { Chat, DBUser } from "@/types"
-import { connectMongoDB } from "@/lib/db"
-import { User, Session } from "next-auth"
-
+import { DBUser, Message } from "@/types"
+import { User } from "next-auth"
+import { getCurrChat, getUsersById } from "@/actions"
 interface PageProps {
   params: {
     chatId: string
-  }
-}
-
-async function getUsersById(userId: string, friendId: string) {
-  await connectMongoDB()
-  const res = await Promise.all([
-    UserModel.findById({ _id: userId }, "_id name email image chats"),
-    UserModel.findById({ _id: friendId }, "_id name email image chats role"),
-  ])
-
-  return JSON.parse(JSON.stringify(res))
-}
-
-async function createDbChat(chatId: string, user: User, friend: User) {
-  try {
-    const res = await fetch("http://localhost:3000/api/chat", {
-      method: "POST",
-      body: JSON.stringify({ chatId, user, friend }),
-    }).then((res) => res.json())
-    console.log(res)
-    if (res.success) {
-      return res
-    }
-  } catch (error) {
-    console.log("error in createDbChat => ", error)
-    throw error
   }
 }
 
@@ -61,9 +32,6 @@ const PrivateChatPage = async ({ params }: PageProps) => {
     userId2
   )
 
-  console.log("dbUser => ", dbUser)
-  console.log("dbFriend => ", dbFriend)
-
   const chatPartner: User = {
     _id: session.user._id === userId1 ? userId2 : userId1,
     name: session.user._id === userId1 ? dbFriend.name : dbUser.name,
@@ -72,10 +40,11 @@ const PrivateChatPage = async ({ params }: PageProps) => {
     role: session.user._id === userId1 ? dbFriend.role : dbUser.role,
   }
 
-  const dbChat: Chat = await createDbChat(chatId, session.user, chatPartner)
+  // const dbChat: Chat = await createDbChat(chatId, session.user, chatPartner)
+  const dbChat = await getCurrChat(chatId)
 
   const chatMessages = dbChat?.messages?.sort(
-    (a, b) => b.createdAt - a.createdAt
+    (a: Message, b: Message) => b.createdAt - a.createdAt
   )
 
   return (
