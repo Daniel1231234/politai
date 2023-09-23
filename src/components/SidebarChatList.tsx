@@ -53,7 +53,7 @@ const SidebarChatList: React.FC<SidebarChatListProps> = ({
               return unseenMsg.sender._id === chat._id
             }).length
 
-            const href = `/chat/${hrefContructor(sessionId, chat._id)}`
+            const href = `/chat/${chat.chatId}`
             const isActive = path === href
 
             const friendName = chat.users.find(

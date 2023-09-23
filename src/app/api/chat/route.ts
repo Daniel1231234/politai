@@ -23,16 +23,8 @@ export const POST = async (req: Request) => {
       })
 
       const updates = [
-        UserModel.findByIdAndUpdate(
-          user._id,
-          { $push: { chats: chat._id } },
-          { new: true }
-        ),
-        UserModel.findByIdAndUpdate(
-          friend._id,
-          { $push: { chats: chat._id } },
-          { new: true }
-        ),
+        UserModel.findByIdAndUpdate(user._id, { $push: { chats: chat._id } }),
+        UserModel.findByIdAndUpdate(friend._id, { $push: { chats: chat._id } }),
       ]
 
       await Promise.all(updates)

@@ -142,9 +142,9 @@ const Messages: React.FC<MessagesProps> = ({
                     </span>
                   </div>
                 ) : (
-                  <span
+                  <div
                     onContextMenu={(e) => openMenu(e, msg)}
-                    className={cn("px-4 py-2 rounded-lg inline-block", {
+                    className={cn(" px-4 py-2 rounded-lg inline-block", {
                       "bg-indigo-600 text-white ": isCurrUser,
                       "bg-gray-200 text-gray-900  ": !isCurrUser,
                       "rounded-br-none":
@@ -153,11 +153,11 @@ const Messages: React.FC<MessagesProps> = ({
                         !hasNextMessageFromSameUser && !isCurrUser,
                     })}
                   >
-                    {message.content}
+                    <span className="ml-2">{message.content}</span>
                     <span className="ml-2 text-sm text-gray-400">
                       {formatTimeStamp(message.createdAt)}
                     </span>
-                  </span>
+                  </div>
                 )}
               </div>
 

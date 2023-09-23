@@ -13,7 +13,7 @@ import { getServerSession } from "next-auth"
 export async function getUsersById(userId: string, friendId: string) {
   await connectMongoDB()
   const res = await Promise.all([
-    UserModel.findById({ _id: userId }, "_id name email image chats"),
+    UserModel.findById({ _id: userId }, "_id name email image chats role"),
     UserModel.findById({ _id: friendId }, "_id name email image chats role"),
   ])
 
@@ -172,6 +172,18 @@ export async function addNewLike(opinionId: string) {
 
       return { success: true, message: "Adding like" }
     }
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export async function getChatData(chatId: string, sessionId: string) {
+  try {
+    let chat = await ChatModel.findOne({ chatId })
+    if (!chat) return { success: false, message: "No chat has found" }
+    const chatPartner = chat.users.find((user) => user._id !== sessionId)
+    return JSON.parse(JSON.stringify({ chat, chatPartner }))
   } catch (error) {
     console.log(error)
     throw error

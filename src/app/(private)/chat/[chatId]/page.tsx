@@ -6,7 +6,7 @@ import Messages from "@/components/Messages"
 import ChatInput from "@/components/ChatInput"
 import { Message } from "@/types"
 import { User } from "next-auth"
-import { getCurrChat, getUsersById } from "@/actions"
+import { getChatData, getCurrChat, getUsersById } from "@/actions"
 interface PageProps {
   params: {
     chatId: string
@@ -25,22 +25,9 @@ const PrivateChatPage = async ({ params }: PageProps) => {
     redirect("/feed")
   }
 
-  const chatPartnerId = session.user._id === userId1 ? userId2 : userId1
+  const { chat, chatPartner } = await getChatData(chatId, session.user._id)
 
-  const [dbUser, dbFriend]: [User, User] = await getUsersById(userId1, userId2)
-
-  const chatPartner: User = {
-    _id: session.user._id === userId1 ? userId2 : userId1,
-    name: session.user._id === userId1 ? dbFriend.name : dbUser.name,
-    email: session.user._id === userId1 ? dbFriend.email : dbUser.email,
-    image: session.user._id === userId1 ? dbFriend.image : dbUser.image,
-    role: session.user._id === userId1 ? dbFriend.role : dbUser.role,
-  }
-
-  // const dbChat: Chat = await createDbChat(chatId, session.user, chatPartner)
-  const dbChat = await getCurrChat(chatId)
-
-  const chatMessages = dbChat?.messages?.sort(
+  const chatMessages = chat?.messages?.sort(
     (a: Message, b: Message) => b.createdAt - a.createdAt
   )
 
@@ -53,8 +40,8 @@ const PrivateChatPage = async ({ params }: PageProps) => {
               <Image
                 fill
                 referrerPolicy="no-referrer"
-                src={chatPartner.image}
-                alt={`${chatPartner.name} profile picture`}
+                src={chatPartner?.image}
+                alt={`${chatPartner?.name} profile picture`}
                 className="rounded-full"
                 sizes="(max-width: 768px) 100vw,
                             (max-width: 1200px) 50vw,
@@ -70,17 +57,17 @@ const PrivateChatPage = async ({ params }: PageProps) => {
               </span>
             </div>
 
-            <span className="text-sm text-gray-600">{chatPartner.email}</span>
+            <span className="text-sm text-gray-600">{chatPartner?.email}</span>
           </div>
         </div>
       </div>
       <Messages
         chatId={chatId}
         chatMessages={chatMessages}
-        chatPartnerId={chatPartnerId}
+        chatPartnerId={chatPartner._id}
         user={session.user}
       />
-      <ChatInput dbFriend={dbFriend} chatId={chatId} />
+      <ChatInput dbFriend={chatPartner} chatId={chatId} />
     </div>
   )
 }

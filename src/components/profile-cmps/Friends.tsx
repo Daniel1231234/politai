@@ -2,12 +2,13 @@
 
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import React, { useState } from "react"
+import React from "react"
 import { toast } from "react-hot-toast"
 import EmptyState from "../EmptyState"
 import { hrefContructor } from "@/lib/utils"
 import axios from "axios"
 import { User } from "next-auth"
+import { getCurrChat } from "@/actions"
 
 interface FriendsProps {
   isAllreadyFrinds?: boolean
@@ -40,14 +41,18 @@ const Friends: React.FC<FriendsProps> = ({
   const handleStartChat = async (friend: User) => {
     try {
       const chatId = hrefContructor(sessionId, friend._id)
-      console.log(chatId)
-      const { data } = await axios.post("/api/chat", {
-        chatId,
-        friend,
-      })
-      console.log(data)
-      if (data.success) {
-        router.push(`/chat/${hrefContructor(sessionId, friend._id)}`)
+      const currChat = await getCurrChat(chatId)
+      if (currChat) {
+        router.push(`/chat/${chatId}`)
+      } else {
+        const { data } = await axios.post("/api/chat", {
+          chatId,
+          friend,
+        })
+        console.log(data)
+        if (data.success) {
+          router.push(`/chat/${chatId}`)
+        }
       }
     } catch (error) {
       console.log(error)
