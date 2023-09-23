@@ -29,6 +29,16 @@ interface OpinionPreviewProps {
   opinionId: string
 }
 
+interface AddLike {
+  opinionId: string
+  like: Like
+}
+
+interface RemoveLike {
+  opinionId: string
+  likeId: string
+}
+
 const OpinionPreview: React.FC<OpinionPreviewProps> = ({
   opinion,
   isFriends,
@@ -51,25 +61,43 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   useEffect(() => {
     pusherClient.subscribe(toPusherKey(`opinion:${opinionId}:likes`))
-    console.log(opinion.likes)
+    pusherClient.subscribe(toPusherKey(`opinion:${opinionId}:comments`))
 
-    const addLike = (like: Like) => {
-      // console.log(like)
-      setOpinionLikes((prev) => [...prev, like])
+    const addLike = ({ like, opinionId }: AddLike) => {
+      if (opinionId === opinion._id) {
+        setOpinionLikes((prev) => [...prev, like])
+      }
     }
 
-    const removeLike = (likeId: string) => {
-      console.log(likeId)
-      setOpinionLikes((prev) => prev.filter((like) => like.id !== likeId))
+    const removeLike = ({ likeId, opinionId }: RemoveLike) => {
+      if (opinionId === opinion._id) {
+        setOpinionLikes((prev) => prev.filter((like) => like._id !== likeId))
+      }
+    }
+
+    const addComment = ({ comment, opinionId }: any) => {
+      if (opinionId === opinion._id) {
+        setOpinionComments((prev) => [...prev, comment])
+      }
+    }
+    const removeComment = ({ commentId, opinionId }: any) => {
+      if (opinionId === opinion._id) {
+        setOpinionComments((prev) => prev.filter((c) => c?._id !== commentId))
+      }
     }
 
     pusherClient.bind("add-like", addLike)
     pusherClient.bind("remove-like", removeLike)
+    pusherClient.bind("add-comment", addComment)
+    pusherClient.bind("remove-comment", removeComment)
 
     return () => {
       pusherClient.unsubscribe(toPusherKey(`opinion:${opinionId}:likes`))
+      pusherClient.unsubscribe(toPusherKey(`opinion:${opinionId}:comments`))
       pusherClient.unbind("add-like", addLike)
       pusherClient.unbind("remove-like", removeLike)
+      pusherClient.unbind("add-comment", addComment)
+      pusherClient.unbind("remove-comment", removeComment)
     }
   }, [opinionId])
 
@@ -143,7 +171,6 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
       const res = await addNewLike(opinion._id)
       console.log(res)
       router.refresh()
-      // await axios.post(`/api/opinion/like/${opinion._id}`)
     } catch (err) {
       console.log(err)
       toast.error("Something went wrong")
@@ -308,7 +335,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                   key={comment._id}
                   className="mb-4 relative  bg-gray-100 p-3 rounded-lg shadow-sm"
                 >
-                  {user._id === comment.creator._id && (
+                  {user._id === comment?.creator._id && (
                     <button
                       onClick={(e) => handleDeleteComment(e, comment._id)}
                       className="absolute top-2 right-2 p-1 text-gray-500 hover:bg-gray-50 hover:rounded-full"
@@ -329,10 +356,10 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                       />
                     </div>
                     <span className="text-base font-medium">
-                      {comment.creator.name}
+                      {comment?.creator.name}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">{comment.text}</p>
+                  <p className="text-sm text-gray-600 mt-1">{comment?.text}</p>
 
                   <div className="flex items-center gap-2 mt-2">
                     <button className="text-gray-500 hover:text-gray-900">
@@ -340,7 +367,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                         className={
                           "h-4 w-4" +
                           cn({
-                            "text-blue-600": comment.likes?.includes(user._id),
+                            "text-blue-600": comment?.likes?.includes(user._id),
                           })
                         }
                       />

@@ -143,7 +143,7 @@ export async function addNewLike(opinionId: string) {
         pusherServer.trigger(
           toPusherKey(`opinion:${opinion._id}:likes`),
           "remove-like",
-          existingLike.id
+          { likeId: existingLike._id, opinionId: opinion._id }
         ),
         LikeModel.findOneAndDelete(existingLike._id),
         OpinionModel.findOneAndUpdate(
@@ -157,11 +157,12 @@ export async function addNewLike(opinionId: string) {
         creator: session.user,
         opinion: opinionId,
       })
+
       await Promise.all([
         pusherServer.trigger(
           toPusherKey(`opinion:${opinion._id}:likes`),
           "add-like",
-          newLike
+          { like: newLike, opinionId: opinion._id }
         ),
         OpinionModel.findOneAndUpdate(
           { _id: opinion?._id },

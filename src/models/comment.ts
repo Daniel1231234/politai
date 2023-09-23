@@ -1,14 +1,14 @@
 import { Model, models, model, Document, Schema } from "mongoose"
 import mongoose from "mongoose"
-import { Like } from "@/types"
 import { UserDocument } from "./user"
 import { OpinionDocument } from "./opinion"
+import { LikeDocument } from "./like"
 
 export interface CommentDocument extends Document {
   text: string
   creator: UserDocument
   opinion: OpinionDocument
-  likes: Like[]
+  likes: LikeDocument[]
   dislikes?: any[]
   createdAt: Date
 }

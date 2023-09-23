@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../../../auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
 import { connectMongoDB } from "@/lib/db"
+import { toPusherKey } from "@/lib/utils"
+import { pusherServer } from "@/lib/pusher"
 
 type Props = {
   params: {
@@ -31,18 +33,19 @@ export const POST = async (req: Request, { params }: Props) => {
       opinion: opinion._id,
     })
 
-    const updatedOpinion = await OpinionModel.findOneAndUpdate(
-      { _id: opinion._id },
-      { $push: { comments: newComment._id } },
-      { new: true }
-    )
+    await Promise.all([
+      pusherServer.trigger(
+        toPusherKey(`opinion:${opinion._id}:comments`),
+        "add-comment",
+        { newComment, opinionId: opinion._id }
+      ),
+      OpinionModel.findOneAndUpdate(
+        { _id: opinion._id },
+        { $push: { comments: newComment._id } }
+      ),
+    ])
 
-    console.log(updatedOpinion)
-
-    return NextResponse.json(
-      { success: true, data: updatedOpinion },
-      { status: 200 }
-    )
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.log(error)
     return NextResponse.json(
@@ -82,13 +85,18 @@ export const DELETE = async (req: Request, { params }: Props) => {
     }
 
     await Promise.all([
+      pusherServer.trigger(
+        toPusherKey(`opinion:${params.opinionId}:comments`),
+        "remove-comment",
+        { opinionId: params.opinionId, commentId: commentToDelete._id }
+      ),
       CommentModel.findByIdAndRemove(commentToDelete._id),
       OpinionModel.findByIdAndUpdate(params.opinionId, {
         $pull: { comments: commentToDelete._id },
       }),
     ])
 
-    return NextResponse.json({ success: true }, { status: 200 })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.log(error)
     return NextResponse.json(

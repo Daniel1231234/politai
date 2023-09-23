@@ -1,7 +1,7 @@
 import { Model, models, model, Document, Schema } from "mongoose"
 import mongoose from "mongoose"
-import { User } from "next-auth"
-import CommentModel, { CommentDocument } from "./comment"
+
+import { CommentDocument } from "./comment"
 import { UserDocument } from "./user"
 import { LikeDocument } from "./like"
 

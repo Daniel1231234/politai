@@ -5,8 +5,10 @@ export interface FriendRequest {
 }
 
 export interface Like {
-  id: string
-  creator: string
+  _id: string
+  creator: User | string
+  opinion: Opinion | string
+  createdAt: number
 }
 
 export interface Opinion {
