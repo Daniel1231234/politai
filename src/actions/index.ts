@@ -1,9 +1,14 @@
 "use server"
 
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { connectMongoDB } from "@/lib/db"
+import { pusherServer } from "@/lib/pusher"
+import { toPusherKey } from "@/lib/utils"
 import ChatModel from "@/models/chat"
+import LikeModel from "@/models/like"
 import OpinionModel from "@/models/opinion"
 import UserModel from "@/models/user"
+import { getServerSession } from "next-auth"
 
 export async function getUsersById(userId: string, friendId: string) {
   await connectMongoDB()
@@ -91,11 +96,12 @@ export async function getInitialOpinions() {
   try {
     // Try populating the creator and comments fields
     const opinions = await OpinionModel.find()
-      .populate("creator")
+      .populate("creator", "_id name image email role")
       .populate({
         path: "comments",
-        populate: { path: "creator", model: "User" },
+        populate: { path: "creator", select: "_id name image email role" },
       })
+      .populate("likes")
 
     return JSON.parse(JSON.stringify(opinions))
   } catch (error) {
@@ -111,6 +117,62 @@ export async function getUserFriendRequests(userId: string) {
       throw new Error("User not found while getting his friend requests")
     return user.friendRequests
   } catch (error) {
+    throw error
+  }
+}
+
+export async function addNewLike(opinionId: string) {
+  try {
+    await connectMongoDB()
+    const session = await getServerSession(authOptions)
+    if (!session) return { success: false }
+
+    const opinion = await OpinionModel.findById(opinionId).populate({
+      path: "likes",
+      populate: { path: "creator", select: "_id name image email role" },
+    })
+
+    if (!opinion) return { success: false }
+
+    const existingLike = opinion?.likes.find(
+      (like) => like.creator.email === session.user.email
+    )
+
+    if (existingLike) {
+      await Promise.all([
+        pusherServer.trigger(
+          toPusherKey(`opinion:${opinion._id}:likes`),
+          "remove-like",
+          existingLike.id
+        ),
+        LikeModel.findOneAndDelete(existingLike._id),
+        OpinionModel.findOneAndUpdate(
+          { _id: opinion._id },
+          { $pull: { likes: existingLike } }
+        ),
+      ])
+      return { success: true, message: "Removing like" }
+    } else {
+      const newLike = await LikeModel.create({
+        creator: session.user,
+        opinion: opinionId,
+      })
+      await Promise.all([
+        pusherServer.trigger(
+          toPusherKey(`opinion:${opinion._id}:likes`),
+          "add-like",
+          newLike
+        ),
+        OpinionModel.findOneAndUpdate(
+          { _id: opinion?._id },
+          { $push: { likes: newLike } }
+        ),
+      ])
+
+      return { success: true, message: "Adding like" }
+    }
+  } catch (error) {
+    console.log(error)
     throw error
   }
 }

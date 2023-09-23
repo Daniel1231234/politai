@@ -1,42 +1,38 @@
-export type DBUser = {
-  createdAt?: string
-  _id: string
-  email: string
-  name: string
-  password: string
-  active: boolean
-  phone: string
-  image: string
-  birthday: string
-  friendRequests: string[]
-  gender: string
-  chats: Chat[]
-  opinions: string[]
-  friends: string[]
-  ideology: string
-  role: "admin" | "user"
-  __v: number
-}
-
-export type FriendRequest = {
+export interface FriendRequest {
   senderId: string
   senderImage: string
   senderName: string
 }
 
-export type UploadImagesResult = {
-  info: {
-    public_id: string
-  }
-  event: "success"
-}
-
-export type Like = {
+export interface Like {
   id: string
   creator: string
 }
 
-export type Chat = {
+export interface Opinion {
+  _id: string
+  title: string
+  body: string
+  images: string[]
+  topics: string[]
+  creator: User | string
+  comments: Comment[]
+  likes: Like[]
+  dislikes: Like[]
+  createdAt: Date | number
+}
+
+export interface Comment {
+  _id: string
+  text: string
+  creator: User | string
+  opinion: string
+  likes: Like[]
+  dislikes: Like[]
+  createdAt: number
+}
+
+export interface Chat {
   _id: string
   chatId: string
   messages: any[]

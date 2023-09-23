@@ -7,6 +7,7 @@ import Image from "next/image"
 import { cn, toPusherKey } from "@/lib/utils"
 import { pusherClient } from "@/lib/pusher"
 import { CldImage } from "next-cloudinary"
+import { Message } from "@/types"
 
 interface MessagesProps {
   chatMessages: any
@@ -28,7 +29,7 @@ const Messages: React.FC<MessagesProps> = ({
   user,
   chatId,
 }) => {
-  const [messages, setMessages] = useState<any[]>(chatMessages)
+  const [messages, setMessages] = useState<Message[]>(chatMessages)
   const [contextMenu, setContextMenu] = useState(initialContextMenu)
   const [msg, setMsg] = useState({ id: "", text: "" })
   const scrollDownRef = useRef<HTMLDivElement | null>(null)
@@ -37,7 +38,7 @@ const Messages: React.FC<MessagesProps> = ({
   useEffect(() => {
     pusherClient.subscribe(chatId)
 
-    const messageHandler = (message: any) => {
+    const messageHandler = (message: Message) => {
       setMessages((prev) => [message, ...prev])
     }
 

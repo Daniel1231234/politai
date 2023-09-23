@@ -4,7 +4,7 @@ import { authOptions } from "../../../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 import Messages from "@/components/Messages"
 import ChatInput from "@/components/ChatInput"
-import { DBUser, Message } from "@/types"
+import { Message } from "@/types"
 import { User } from "next-auth"
 import { getCurrChat, getUsersById } from "@/actions"
 interface PageProps {
@@ -27,10 +27,7 @@ const PrivateChatPage = async ({ params }: PageProps) => {
 
   const chatPartnerId = session.user._id === userId1 ? userId2 : userId1
 
-  const [dbUser, dbFriend]: [DBUser, DBUser] = await getUsersById(
-    userId1,
-    userId2
-  )
+  const [dbUser, dbFriend]: [User, User] = await getUsersById(userId1, userId2)
 
   const chatPartner: User = {
     _id: session.user._id === userId1 ? userId2 : userId1,

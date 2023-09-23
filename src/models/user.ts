@@ -1,8 +1,8 @@
 import { Model, models, model, Document, Schema } from "mongoose"
 import * as bcrypt from "bcrypt"
 import mongoose from "mongoose"
-import OpinionDocument from "./opinion"
-import ChatDocument from "./chat"
+import { OpinionDocument } from "./opinion"
+import { ChatDocument } from "./chat"
 
 import { FriendRequest } from "@/types"
 
@@ -16,8 +16,8 @@ export interface UserDocument extends Document {
   image: string
   birthday: string
   gender: string
-  opinions: (typeof OpinionDocument)[]
-  chats: (typeof ChatDocument)[]
+  opinions: OpinionDocument[]
+  chats: ChatDocument[]
   ideology: string
   religion: string
   friends: any

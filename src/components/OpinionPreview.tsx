@@ -8,39 +8,38 @@ import { useRouter } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import TextareaAutosize from "react-textarea-autosize"
-import { Like } from "@/types"
+import { Comment, Like } from "@/types"
 import { BsX } from "react-icons/bs"
 import { useOnClickOutside } from "../hooks/useOnClickOutside"
 import { FiUserPlus } from "react-icons/fi"
 import { IoIosSend } from "react-icons/io"
-import { UserDocument } from "@/models/user"
 import { FaThumbsUp, FaThumbsDown } from "react-icons/fa"
 import { BiMessageSquareAdd } from "react-icons/bi"
 import { CldImage } from "next-cloudinary"
-import { CommentDocument } from "@/models/comment"
 import axios from "axios"
 import { User } from "next-auth"
+import { pusherClient } from "@/lib/pusher"
+import { addNewLike } from "@/actions"
 
 interface OpinionPreviewProps {
   opinion: any
   isFriends: boolean
   isUserOpinion?: boolean
-  onAddFriend: (userToAdd: User) => Promise<void>
-
   user: User
+  opinionId: string
 }
 
 const OpinionPreview: React.FC<OpinionPreviewProps> = ({
   opinion,
   isFriends,
   isUserOpinion,
-  onAddFriend,
   user,
+  opinionId,
 }) => {
   const router = useRouter()
   const [isOpenComments, setIsOpenComments] = useState<boolean>(false)
   const [commentText, setCommentText] = useState<string>("")
-  const [opinionComments, setOpinionComments] = useState<any[]>(
+  const [opinionComments, setOpinionComments] = useState<Comment[]>(
     opinion.comments
   )
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -48,18 +47,62 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   const opinionRef = useRef<HTMLDivElement | null>(null)
 
-  const handleCloseComments = () => setIsOpenComments(false)
+  useOnClickOutside(opinionRef, () => setIsOpenComments(false))
 
-  useOnClickOutside(opinionRef, handleCloseComments)
+  useEffect(() => {
+    pusherClient.subscribe(toPusherKey(`opinion:${opinionId}:likes`))
+    console.log(opinion.likes)
+
+    const addLike = (like: Like) => {
+      // console.log(like)
+      setOpinionLikes((prev) => [...prev, like])
+    }
+
+    const removeLike = (likeId: string) => {
+      console.log(likeId)
+      setOpinionLikes((prev) => prev.filter((like) => like.id !== likeId))
+    }
+
+    pusherClient.bind("add-like", addLike)
+    pusherClient.bind("remove-like", removeLike)
+
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`opinion:${opinionId}:likes`))
+      pusherClient.unbind("add-like", addLike)
+      pusherClient.unbind("remove-like", removeLike)
+    }
+  }, [opinionId])
+
+  const onAddFriend = async (senderUser: User) => {
+    setIsLoading(true)
+    try {
+      const { data } = await axios.post("/api/friends/add", {
+        senderUserId: senderUser._id,
+      })
+
+      if (!data.success) {
+        toast.error(data.message)
+        return
+      }
+      if (data.success) {
+        toast.success(`Friend request sent`)
+      }
+    } catch (error: any) {
+      console.log(error)
+      toast.error("Something went wrong!")
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleNewComment = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const { data } = await axios.post(
-        `/api/opinion/comment/${opinion._id}`,
-        commentText
-      )
+      const { data } = await axios.post(`/api/opinion/comment/${opinion._id}`, {
+        commentText,
+      })
 
       if (data.success) {
         setCommentText("")
@@ -81,7 +124,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
     try {
       const { data } = await axios.delete(
         `/api/opinion/comment/${opinion._id}`,
-        { data: commentid }
+        { data: { commentid } }
       )
 
       if (data.success) {
@@ -97,7 +140,10 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
   const handleNewLike = async () => {
     try {
-      await axios.post(`/api/opinion/like/${opinion._id}`)
+      const res = await addNewLike(opinion._id)
+      console.log(res)
+      router.refresh()
+      // await axios.post(`/api/opinion/like/${opinion._id}`)
     } catch (err) {
       console.log(err)
       toast.error("Something went wrong")
@@ -110,7 +156,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
         ref={opinionRef}
         className="relative bg-white shadow-md rounded-lg p-4 w-full"
       >
-        <div className="flex justify-between">
+        <div className="addfriendbtn flex justify-between">
           <div></div>
           <div className=" relative flex items-center space-x-1 ">
             {!isFriends && !isUserOpinion && (
@@ -124,7 +170,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-between mb-4">
+        <div className="topcreatordetails flex justify-between mb-4">
           <div className="flex">
             <Image
               width={48}
@@ -164,17 +210,17 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
         <div className="flex justify-between mt-3">
           <div
             className={`flex gap-1 items-center ${cn({
-              "text-blue-600": opinion.likes.some(
+              "text-blue-600": opinionLikes.some(
                 (like: Like) => like.creator === user._id
               ),
             })} `}
           >
             <FaThumbsUp />
-            <span>{opinion.likes.length}</span>
+            <span>{opinionLikes.length}</span>
           </div>
           <div className="flex gap-1 items-center text-gray-600">
             <BiMessageSquareAdd />
-            <span> {opinion.comments.length}</span>
+            <span> {opinionComments.length}</span>
           </div>
         </div>
 
@@ -182,7 +228,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
         <div className="flex items-center justify-between w-full">
           <Button
-            onClick={() => handleNewLike()}
+            onClick={handleNewLike}
             title="like"
             size="sm"
             variant="ghost"
@@ -191,7 +237,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
             <FaThumbsUp />
 
             <span>
-              {opinion.likes.some((like: Like) => like.creator === user._id)
+              {opinionLikes.some((like: Like) => like.creator === user._id)
                 ? "UnLike"
                 : "Like"}
             </span>
@@ -257,7 +303,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
             </form>
 
             <div className="commentsContainer mt-4 space-y-4">
-              {opinion.comments?.map((comment: CommentDocument) => (
+              {opinionComments?.map((comment: Comment) => (
                 <div
                   key={comment._id}
                   className="mb-4 relative  bg-gray-100 p-3 rounded-lg shadow-sm"
@@ -294,7 +340,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                         className={
                           "h-4 w-4" +
                           cn({
-                            "text-blue-600": opinion.likes.includes(user._id),
+                            "text-blue-600": comment.likes?.includes(user._id),
                           })
                         }
                       />

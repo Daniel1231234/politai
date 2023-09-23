@@ -3,8 +3,9 @@ import { authOptions } from "../../../auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
 import { connectMongoDB } from "@/lib/db"
 import OpinionModel from "@/models/opinion"
-import { generateRandomId } from "@/lib/utils"
+import { generateRandomId, toPusherKey } from "@/lib/utils"
 import { Like } from "@/types"
+import { pusherServer } from "@/lib/pusher"
 
 type Props = {
   params: {
@@ -34,6 +35,13 @@ export const POST = async (req: Request, { params }: Props) => {
 
     if (existingLike) {
       // User has already liked, so we remove the like
+
+      await pusherServer.trigger(
+        toPusherKey(`opinion:${params.opinionId}:likes`),
+        "remove-like",
+        existingLike.id
+      )
+
       updatedOpinion = await OpinionModel.findOneAndUpdate(
         { _id: params.opinionId },
         { $pull: { likes: { id: existingLike.id } } },
@@ -46,6 +54,12 @@ export const POST = async (req: Request, { params }: Props) => {
         creator: userId,
       }
 
+      await pusherServer.trigger(
+        toPusherKey(`opinion:${params.opinionId}:likes`),
+        "add-like",
+        newLike
+      )
+
       updatedOpinion = await OpinionModel.findOneAndUpdate(
         { _id: params.opinionId },
         { $push: { likes: newLike } },
@@ -56,12 +70,12 @@ export const POST = async (req: Request, { params }: Props) => {
     return NextResponse.json(
       { success: true, data: updatedOpinion },
       { status: 200 }
-    );
+    )
   } catch (error) {
-    console.log(error);
+    console.log(error)
     return NextResponse.json(
       { success: false, error: "Something went wrong!" },
       { status: 500 }
-    );
+    )
   }
 }

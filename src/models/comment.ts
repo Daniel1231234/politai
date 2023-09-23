@@ -1,17 +1,19 @@
 import { Model, models, model, Document, Schema } from "mongoose"
 import mongoose from "mongoose"
 import { Like } from "@/types"
+import { UserDocument } from "./user"
+import { OpinionDocument } from "./opinion"
 
 export interface CommentDocument extends Document {
   text: string
-  creator: any
-  opinion: any
+  creator: UserDocument
+  opinion: OpinionDocument
   likes: Like[]
-  dislikes: any[]
+  dislikes?: any[]
   createdAt: Date
 }
 
-const CommentSchema = new Schema<CommentDocument>({
+const CommentSchema: Schema<CommentDocument> = new Schema<CommentDocument>({
   text: { type: String, required: true },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   opinion: { type: mongoose.Schema.Types.ObjectId, ref: "Opinion" },

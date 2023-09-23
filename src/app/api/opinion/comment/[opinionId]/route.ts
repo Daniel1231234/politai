@@ -20,7 +20,7 @@ export const POST = async (req: Request, { params }: Props) => {
         { success: false, message: "Unauthorized" },
         { status: 401 }
       )
-    const commentText = await req.json()
+    const { commentText } = await req.json()
 
     const opinion = await OpinionModel.findById({ _id: params.opinionId })
     if (!opinion) return
@@ -62,9 +62,10 @@ export const DELETE = async (req: Request, { params }: Props) => {
       )
     }
 
-    const commentId = await req.json()
+    const { commentid } = await req.json()
+    console.log(commentid)
 
-    const commentToDelete = await CommentModel.findById(commentId)
+    const commentToDelete = await CommentModel.findById(commentid)
 
     if (!commentToDelete) {
       return NextResponse.json(
