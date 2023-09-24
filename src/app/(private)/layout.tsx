@@ -3,7 +3,7 @@ import { authOptions } from "../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { FaHome } from "react-icons/fa"
+import { FaHome, FaMicrophone } from "react-icons/fa"
 import FeedHeader from "@/components/FeedHeader"
 import { Chat, FriendRequest } from "@/types"
 import AppFooter from "@/components/AppFooter"
@@ -87,6 +87,18 @@ const FeedLayout = async ({ children }: LayoutProps) => {
                           sessionId={session.user._id}
                         />
                       </div>
+                    </li>
+
+                    <li>
+                      <Link
+                        href="/stt"
+                        className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"
+                      >
+                        <span className="text-gray-400 border-gray-400">
+                          <FaMicrophone className="h-9 w-9 rounded-full" />
+                        </span>
+                        <span className="truncate">Speech to Text</span>
+                      </Link>
                     </li>
                   </ul>
                 </li>

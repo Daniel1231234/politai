@@ -11,7 +11,14 @@ import { signOut } from "next-auth/react"
 import toast from "react-hot-toast"
 import FriendRequestPreviewModal from "@/components/FriendRequestPreviewModal"
 import AppFooter from "@/components/AppFooter"
-import { FaBell, FaUsers, FaHome, FaSignOutAlt, FaBars } from "react-icons/fa"
+import {
+  FaBell,
+  FaUsers,
+  FaHome,
+  FaSignOutAlt,
+  FaBars,
+  FaMicrophone,
+} from "react-icons/fa"
 import { MdClose } from "react-icons/md"
 import { FriendRequest } from "@/types"
 import { SiWechat } from "react-icons/si"
@@ -181,6 +188,19 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
                                         <SiWechat className="h-9 w-9 rounded-full" />
                                       </span>
                                       <span className="truncate">Chat</span>
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      href="/stt"
+                                      className="text-gray-700 hover:text-indigo-600 hover:bg-secondery group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold items-center"
+                                    >
+                                      <span className="text-gray-400 border-gray-400">
+                                        <FaMicrophone className="h-9 w-9 rounded-full" />
+                                      </span>
+                                      <span className="truncate">
+                                        Speech to Text
+                                      </span>
                                     </Link>
                                   </li>
                                   <li>
