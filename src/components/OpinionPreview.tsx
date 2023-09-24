@@ -99,7 +99,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
       pusherClient.unbind("add-comment", addComment)
       pusherClient.unbind("remove-comment", removeComment)
     }
-  }, [opinionId])
+  }, [opinionId, opinion._id])
 
   const onAddFriend = async (senderUser: User) => {
     setIsLoading(true)

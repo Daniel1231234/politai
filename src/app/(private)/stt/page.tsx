@@ -6,7 +6,7 @@ import "regenerator-runtime/runtime"
 
 interface SpeechToTextProps {}
 
-const SpeechToText = async ({}: SpeechToTextProps) => {
+const SpeechToText = ({}: SpeechToTextProps) => {
   return (
     <>
       <Stt />
