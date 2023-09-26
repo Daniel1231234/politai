@@ -26,7 +26,6 @@ interface OpinionPreviewProps {
   isFriends: boolean
   isUserOpinion?: boolean
   user: User
-  opinionId: string
 }
 
 interface AddLike {
@@ -44,7 +43,6 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
   isFriends,
   isUserOpinion,
   user,
-  opinionId,
 }) => {
   const router = useRouter()
   const [isOpenComments, setIsOpenComments] = useState<boolean>(false)
@@ -60,8 +58,8 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
   useOnClickOutside(opinionRef, () => setIsOpenComments(false))
 
   useEffect(() => {
-    pusherClient.subscribe(toPusherKey(`opinion:${opinionId}:likes`))
-    pusherClient.subscribe(toPusherKey(`opinion:${opinionId}:comments`))
+    pusherClient.subscribe(toPusherKey(`opinion:${opinion._id}:likes`))
+    pusherClient.subscribe(toPusherKey(`opinion:${opinion._id}:comments`))
 
     const addLike = ({ like, opinionId }: AddLike) => {
       if (opinionId === opinion._id) {
@@ -88,18 +86,18 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
 
     pusherClient.bind("add-like", addLike)
     pusherClient.bind("remove-like", removeLike)
-    pusherClient.bind("add-comment", addComment)
+    // pusherClient.bind("add-comment", addComment)
     pusherClient.bind("remove-comment", removeComment)
 
     return () => {
-      pusherClient.unsubscribe(toPusherKey(`opinion:${opinionId}:likes`))
-      pusherClient.unsubscribe(toPusherKey(`opinion:${opinionId}:comments`))
+      pusherClient.unsubscribe(toPusherKey(`opinion:${opinion._id}:likes`))
+      pusherClient.unsubscribe(toPusherKey(`opinion:${opinion._id}:comments`))
       pusherClient.unbind("add-like", addLike)
       pusherClient.unbind("remove-like", removeLike)
-      pusherClient.unbind("add-comment", addComment)
+      // pusherClient.unbind("add-comment", addComment)
       pusherClient.unbind("remove-comment", removeComment)
     }
-  }, [opinionId, opinion._id])
+  }, [opinion._id])
 
   const onAddFriend = async (senderUser: User) => {
     setIsLoading(true)
@@ -332,12 +330,12 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
             <div className="commentsContainer mt-4 space-y-4">
               {opinionComments?.map((comment: Comment) => (
                 <div
-                  key={comment._id}
+                  key={comment?._id}
                   className="mb-4 relative  bg-gray-100 p-3 rounded-lg shadow-sm"
                 >
                   {user._id === comment?.creator._id && (
                     <button
-                      onClick={(e) => handleDeleteComment(e, comment._id)}
+                      onClick={(e) => handleDeleteComment(e, comment?._id)}
                       className="absolute top-2 right-2 p-1 text-gray-500 hover:bg-gray-50 hover:rounded-full"
                       title="delete comment"
                       type="button"
@@ -372,12 +370,12 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                         }
                       />
                     </button>
-                    <span>{comment.likes.length}</span>
+                    <span>{comment?.likes.length}</span>
 
                     <button className="text-gray-500 hover:text-gray-900 ml-4">
                       <FaThumbsDown className="h-4 w-4" />
                     </button>
-                    <span>{comment.dislikes.length}</span>
+                    <span>{comment?.dislikes.length}</span>
                   </div>
                 </div>
               ))}

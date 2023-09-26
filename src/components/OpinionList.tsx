@@ -40,7 +40,6 @@ const OpinionList = async ({ user }: OpinionListProps) => {
               <OpinionPreview
                 key={opinion._id}
                 opinion={opinion}
-                opinionId={opinion._id}
                 isFriends={isFriend}
                 isUserOpinion={isUserOpinion}
                 user={user}

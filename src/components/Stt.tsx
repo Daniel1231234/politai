@@ -22,7 +22,11 @@ const Stt: React.FC<SttProps> = ({}) => {
     if (finalTranscript !== "") {
       console.log("Got final result:", finalTranscript)
     }
-  }, [interimTranscript, finalTranscript])
+
+    if (finalTranscript.endsWith("חלאס")) {
+      resetTranscript()
+    }
+  }, [interimTranscript, finalTranscript, resetTranscript])
 
   if (!browserSupportsSpeechRecognition) {
     return null
@@ -39,11 +43,11 @@ const Stt: React.FC<SttProps> = ({}) => {
   const handleStopListening = () => SpeechRecognition.stopListening()
 
   return (
-    <div className=" h-full py-4  w-full flex flex-col justify-between">
+    <div className="h-full py-4 w-full my-4 flex flex-col justify-between">
       <h1 className="text-3xl font-semibold mb-6">Speech to Text</h1>
       <div className="bg-white rounded-md h-full my-4">
-        <span className="text-lg font-medium">Generated Text:</span>
-        <p className="mt-2 text-gray-700">{transcript}</p>
+        <span className="text-lg font-mono">Generated Text:</span>
+        <p className="mt-2 p-2 text-gray-700">{transcript}</p>
       </div>
       <p className="mb-4 text-xl font-semibold">
         Microphone:{" "}
