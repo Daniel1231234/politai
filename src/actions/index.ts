@@ -3,6 +3,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { connectMongoDB } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
+import twilio from "@/lib/twilio"
 import { toPusherKey } from "@/lib/utils"
 import ChatModel from "@/models/chat"
 import LikeModel from "@/models/like"
@@ -187,5 +188,21 @@ export async function getChatData(chatId: string, sessionId: string) {
   } catch (error) {
     console.log(error)
     throw error
+  }
+}
+
+export async function sendWhatsapp(
+  to: string = "+972545882578",
+  message: string
+) {
+  try {
+    const res = await twilio.messages.create({
+      body: message,
+      from: process.env.TWILIO_NUMBER ?? "",
+      to: `whatsapp:${to}`,
+    })
+    console.log(`Message sent to ${to}: ${res.sid}`)
+  } catch (error) {
+    console.log(`Failed to send message: ${error}`)
   }
 }

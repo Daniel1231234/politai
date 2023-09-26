@@ -1,5 +1,6 @@
 "use client"
 
+import { sendWhatsapp } from "@/actions"
 import React, { useEffect, useState } from "react"
 import { MdMic, MdMicOff } from "react-icons/md"
 import SpeechRecognition, {
@@ -9,6 +10,9 @@ import SpeechRecognition, {
 interface SttProps {}
 
 const Stt: React.FC<SttProps> = ({}) => {
+  const [phoneNumber, setPhoneNumber] = useState<string>("+972545882578")
+  const [message, setMessage] = useState<string>("")
+
   const {
     transcript,
     interimTranscript,
@@ -41,6 +45,15 @@ const Stt: React.FC<SttProps> = ({}) => {
   }
 
   const handleStopListening = () => SpeechRecognition.stopListening()
+
+  const handleSendWhatsapp = async () => {
+    let phone = phoneNumber
+    if (phoneNumber) {
+      await sendWhatsapp(phone, transcript)
+    } else {
+      console.log("Phone number is empty")
+    }
+  }
 
   return (
     <div className="h-full py-4 w-full my-4 flex flex-col justify-between">
@@ -76,7 +89,20 @@ const Stt: React.FC<SttProps> = ({}) => {
         >
           Reset
         </button>
+        <button
+          className="px-4 py-2 bg-gray-600 text-white rounded-md"
+          onClick={handleSendWhatsapp}
+        >
+          Send Whstsapp
+        </button>
       </div>
+      <input
+        type="text"
+        value={phoneNumber}
+        onChange={(e) => setPhoneNumber(e.target.value)}
+        placeholder="Enter phone number"
+        className="mb-4 p-2 w-full border rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+      />
     </div>
   )
 }
