@@ -6,11 +6,16 @@ import { MdMic, MdMicOff } from "react-icons/md"
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition"
+import "react-phone-number-input/style.css"
+import PhoneInput from "react-phone-number-input"
+import "regenerator-runtime/runtime"
+import dynamic from "next/dynamic"
+import Divider from "./Divider"
 
 interface SttProps {}
 
 const Stt: React.FC<SttProps> = ({}) => {
-  const [phoneNumber, setPhoneNumber] = useState<string>("+972545882578")
+  const [phoneNumber, setPhoneNumber] = useState<any>()
   const [message, setMessage] = useState<string>("")
 
   const {
@@ -24,6 +29,8 @@ const Stt: React.FC<SttProps> = ({}) => {
 
   useEffect(() => {
     if (finalTranscript !== "") {
+      setMessage(finalTranscript)
+      SpeechRecognition.stopListening()
       console.log("Got final result:", finalTranscript)
     }
 
@@ -47,64 +54,74 @@ const Stt: React.FC<SttProps> = ({}) => {
   const handleStopListening = () => SpeechRecognition.stopListening()
 
   const handleSendWhatsapp = async () => {
-    let phone = phoneNumber
-    if (phoneNumber) {
-      await sendWhatsapp(phone, transcript)
+    if (phoneNumber && message) {
+      await sendWhatsapp(phoneNumber, transcript)
     } else {
       console.log("Phone number is empty")
     }
   }
 
   return (
-    <div className="h-full py-4 w-full my-4 flex flex-col justify-between">
-      <h1 className="text-3xl font-semibold mb-6">Speech to Text</h1>
-      <div className="bg-white rounded-md h-full my-4">
-        <span className="text-lg font-mono">Generated Text:</span>
-        <p className="mt-2 p-2 text-gray-700">{transcript}</p>
+    <div className="flex flex-col overflow-y-auto">
+      <h1 className="text-3xl font-semibold mb-4 sm:text-4xl mt-4">
+        Speech to Text
+      </h1>
+
+      <div className="bg-white shadow-lg rounded-lg p-6 mx-2">
+        <p className="text-lg font-medium mb-2">Generated Text:</p>
+
+        <div className="h-60 overflow-y-auto px-2 py-4 rounded-md">
+          <p className="text-gray-700 text-sm md:text-base">{transcript}</p>
+        </div>
       </div>
-      <p className="mb-4 text-xl font-semibold">
-        Microphone:{" "}
-        <span className="text-blue-500">
-          {listening ? "Listening..." : "Off"}
-        </span>
-      </p>
-      <div className="flex gap-4 flex-wrap">
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center"
-          onClick={handleStartListening}
-        >
-          <MdMic size={20} className="mr-2" />
-          Start
-        </button>
-        <button
-          className="px-4 py-2 bg-red-600 text-white rounded-md flex items-center"
-          onClick={handleStopListening}
-        >
-          <MdMicOff size={20} className="mr-2" />
-          Stop
-        </button>
-        <button
-          className="px-4 py-2 bg-gray-600 text-white rounded-md"
-          onClick={resetTranscript}
-        >
-          Reset
-        </button>
-        <button
-          className="px-4 py-2 bg-gray-600 text-white rounded-md"
-          onClick={handleSendWhatsapp}
-        >
-          Send Whstsapp
-        </button>
+
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-4">
+        <p className="text-lg">
+          <span className="mx-2">Microphone: </span>
+          <span className="text-blue-500">
+            {listening ? "Listening..." : "Off"}
+          </span>
+        </p>
+
+        <div className="flex mt-4 sm:mt-0 mx-2">
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2 flex items-center"
+            onClick={handleStartListening}
+          >
+            <MdMic className="mr-2" />
+            <span className="text-base sm:text-lg">Start</span>
+          </button>
+
+          <button
+            className="px-4 py-2 bg-red-600 text-white rounded-md flex items-center"
+            onClick={handleStopListening}
+          >
+            <MdMicOff className="mr-2" />
+            <span className="text-base sm:text-lg">Stop</span>
+          </button>
+        </div>
       </div>
-      <input
-        type="text"
-        value={phoneNumber}
-        onChange={(e) => setPhoneNumber(e.target.value)}
-        placeholder="Enter phone number"
-        className="mb-4 p-2 w-full border rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-      />
+
+      <div className="flex justify-between items-center my-4">
+        <div className="flex flex-col sm:flex-row sm:gap-4 flex-wrap mt-4 sm:mt-0 w-full">
+          <PhoneInput
+            defaultCountry="IL"
+            className="mx-2"
+            placeholder="Enter phone number"
+            value={phoneNumber}
+            onChange={setPhoneNumber}
+          />
+
+          <button
+            className="bg-green-600 my-2 mx-2 px-4 py-2 rounded-md text-white "
+            onClick={handleSendWhatsapp}
+          >
+            Send Whatsapp
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
 
-export default Stt
+export default dynamic(() => Promise.resolve(Stt), { ssr: false })
