@@ -201,6 +201,7 @@ export async function sendWhatsapp(
       from: process.env.TWILIO_NUMBER ?? "",
       to: `whatsapp:${to}`,
     })
+    console.log(res)
     console.log(`Message sent to ${to}: ${res.sid}`)
   } catch (error) {
     console.log(`Failed to send message: ${error}`)

@@ -20,6 +20,7 @@ import axios from "axios"
 import { User } from "next-auth"
 import { pusherClient } from "@/lib/pusher"
 import { addNewLike } from "@/actions"
+import ImgContainer from "./ImgContainer"
 
 interface OpinionPreviewProps {
   opinion: any
@@ -36,6 +37,11 @@ interface AddLike {
 interface RemoveLike {
   opinionId: string
   likeId: string
+}
+
+function isHebrew(text: string) {
+  const hebrew = /[\u0590-\u05FF]/
+  return hebrew.test(text)
 }
 
 const OpinionPreview: React.FC<OpinionPreviewProps> = ({
@@ -183,7 +189,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
       >
         <div className="addfriendbtn flex justify-between">
           <div></div>
-          <div className=" relative flex items-center space-x-1 ">
+          <div className="relative flex items-center space-x-1 ">
             {!isFriends && !isUserOpinion && (
               <button
                 onClick={() => onAddFriend(opinion.creator)}
@@ -208,7 +214,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
               className="ml-2 cursor-pointer"
               onClick={() => router.push(`/profile/${opinion.creator._id}`)}
             >
-              <span className="block font-semibold text-lg text-black">
+              <span className="block font-semibold text-sm sm:text-lg text-black">
                 {opinion.creator.name}
               </span>
               <span className="block text-sm text-gray-500">
@@ -218,13 +224,19 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
           </div>
         </div>
 
-        <p className="text-lg mb-2">{opinion?.body}</p>
+        <p
+          className={`text-sm sm:text-lg mb-2 ${
+            isHebrew(opinion?.body) ? "text-right" : "text-left"
+          }`}
+        >
+          {opinion?.body}
+        </p>
 
         {opinion.images.length > 0 && (
           <div className="grid grid-cols-2 gap-2 mb-2">
             {opinion.images.map((publicId: string, idx: number) => (
               <div key={idx} className="rounded-lg overflow-hidden">
-                <CldImage width="300" height="300" src={publicId} alt="" />
+                <ImgContainer publicId={publicId} />
               </div>
             ))}
           </div>
@@ -273,10 +285,10 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
             title="comment"
             size="sm"
             variant="ghost"
-            className="flex items-center gap-1 font-normal flex-1"
+            className="flex items-center gap-1 font-normal flex-1 "
           >
             <BiMessageSquareAdd />
-            <span>Comment</span>
+            <span className="text-sm">Comment</span>
           </Button>
         </div>
 
@@ -357,7 +369,14 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
                       {comment?.creator.name}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">{comment?.text}</p>
+
+                  <p
+                    className={`text-sm text-gray-600 mt-1 ${
+                      isHebrew(comment?.text) ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {comment?.text}
+                  </p>
 
                   <div className="flex items-center gap-2 mt-2">
                     <button className="text-gray-500 hover:text-gray-900">

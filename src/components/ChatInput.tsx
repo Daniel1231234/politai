@@ -1,13 +1,19 @@
 "use client"
 
-import { FC, useRef, useState } from "react"
+import { FC, useEffect, useRef, useState } from "react"
 import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { CldUploadButton } from "next-cloudinary"
 import TextareaAutosize from "react-textarea-autosize"
 import Button, { buttonVariants } from "./Button"
 import { toast } from "react-hot-toast"
 import { BsFillImageFill, BsEmojiWink } from "react-icons/bs"
+import { FaMicrophone } from "react-icons/fa"
+import dynamic from "next/dynamic"
 import axios from "axios"
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition"
+import "regenerator-runtime/runtime"
 
 interface ChatInputProps {
   dbFriend: any
@@ -22,9 +28,29 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
 
   const chatInputRef = useRef<HTMLDivElement | null>(null)
 
-  const closeImgContianer = () => setOpenEmojiPicker(false)
+  useOnClickOutside(chatInputRef, () => setOpenEmojiPicker(false))
 
-  useOnClickOutside(chatInputRef, closeImgContianer)
+  const {
+    transcript,
+    finalTranscript,
+    browserSupportsSpeechRecognition,
+    resetTranscript,
+    interimTranscript,
+    listening,
+  } = useSpeechRecognition()
+
+  useEffect(() => {
+    if (finalTranscript !== "") {
+      SpeechRecognition.stopListening()
+      setInput(finalTranscript)
+    }
+  }, [interimTranscript, finalTranscript])
+
+  useEffect(() => {
+    if (listening) {
+      setInput(transcript)
+    }
+  }, [listening, transcript])
 
   const sendMessage = async () => {
     if (!input) return
@@ -48,20 +74,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
 
   const handleEmojiClick = (emoji: string) => {
     setInput((prev: string) => (prev += emoji))
-    closeImgContianer()
+    setOpenEmojiPicker(false)
   }
 
   const handleUpload = async (results: any) => {
     setIsLoading(true)
-    const imageUrl = results.info.secure_url
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      //   await axios.post("/api/message/send", {
-      //     text: imageUrl,
-      //     chatId,
-      //     isImage: true,
-      //   })
-      textareaRef.current?.focus()
+      const { data } = await axios.post("/api/chat/message/send", {
+        chatId,
+        content: results.info.secure_url,
+      })
+      if (data.success) {
+        setInput("")
+        textareaRef.current?.focus()
+      }
     } catch (err) {
       toast.error(
         "Something went wrong with your image, Please try again later."
@@ -71,6 +98,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
     }
   }
 
+  const handleSpeechToText = () => {
+    SpeechRecognition.startListening({ continuous: true, language: "he" })
+    console.log(transcript)
+  }
+
+  if (!browserSupportsSpeechRecognition) {
+    return null
+  }
   return (
     <div
       className="border-t  border-gray-200  pt-4 sm:mb-0 "
@@ -117,6 +152,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
                 Post
               </Button>
               <Button
+                onClick={handleSpeechToText}
+                size="sm"
+                variant="ghost"
+                className="w-full cursor-pointer"
+              >
+                <FaMicrophone strokeWidth={2} color="gray" />
+              </Button>
+
+              <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setOpenEmojiPicker(!openEmojiPicker)}
@@ -124,6 +168,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
               >
                 <BsEmojiWink strokeWidth={2} color="gray" />
               </Button>
+
               <div
                 className={`relative ${buttonVariants({
                   variant: "ghost",
@@ -146,5 +191,5 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
     </div>
   )
 }
-
-export default ChatInput
+export default dynamic(() => Promise.resolve(ChatInput), { ssr: false })
+// export default ChatInput

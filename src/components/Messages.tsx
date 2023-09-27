@@ -39,7 +39,9 @@ const Messages: React.FC<MessagesProps> = ({
     pusherClient.subscribe(chatId)
 
     const messageHandler = (message: Message) => {
-      setMessages((prev) => [message, ...prev])
+      if (message.chatId === chatId) {
+        setMessages((prev) => [message, ...prev])
+      }
     }
 
     pusherClient.bind("incoming-message", messageHandler)
