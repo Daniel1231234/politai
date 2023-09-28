@@ -84,6 +84,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
         setOpinionComments((prev) => [...prev, comment])
       }
     }
+
     const removeComment = ({ commentId, opinionId }: any) => {
       if (opinionId === opinion._id) {
         setOpinionComments((prev) => prev.filter((c) => c?._id !== commentId))

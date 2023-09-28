@@ -34,3 +34,19 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+
+.EmojiPickerReact {
+  padding:5px;
+  margin:3px;
+  
+
+}
+
+.epr-category-nav, .epr-emoji-category-label {
+  display: none !important;
+}
+
+
+
+

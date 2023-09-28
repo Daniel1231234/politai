@@ -3,11 +3,14 @@
 import { toast } from "react-hot-toast"
 import { FC, useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
-import Image from "next/image"
+import { FaTrash } from "react-icons/fa"
 import { cn, toPusherKey } from "@/lib/utils"
 import { pusherClient } from "@/lib/pusher"
-import { CldImage } from "next-cloudinary"
 import { Message } from "@/types"
+import ImgContainer from "./ImgContainer"
+import { useContextMenu } from "@/hooks/useContextMenu"
+import ContextMenu from "./ContextMenu"
+import { useWindowSize } from "@/hooks/useWindowSize"
 
 interface MessagesProps {
   chatMessages: any
@@ -16,11 +19,8 @@ interface MessagesProps {
   chatId: string
 }
 
-const initialContextMenu = {
-  show: false,
-  x: 0,
-  y: 0,
-  isWiderScreen: false,
+const formatTimeStamp = (timestamp: number) => {
+  return format(timestamp, "HH:mm")
 }
 
 const Messages: React.FC<MessagesProps> = ({
@@ -30,10 +30,11 @@ const Messages: React.FC<MessagesProps> = ({
   chatId,
 }) => {
   const [messages, setMessages] = useState<Message[]>(chatMessages)
-  const [contextMenu, setContextMenu] = useState(initialContextMenu)
-  const [msg, setMsg] = useState({ id: "", text: "" })
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const scrollDownRef = useRef<HTMLDivElement | null>(null)
   const [isTyping, setIsTyping] = useState(false)
+  const { clicked, setClicked, coords, setCoords } = useContextMenu()
+  const windowSize = useWindowSize()
 
   useEffect(() => {
     pusherClient.subscribe(chatId)
@@ -52,129 +53,101 @@ const Messages: React.FC<MessagesProps> = ({
     }
   }, [chatId])
 
-  const openMenu = (
-    e: React.MouseEvent<HTMLSpanElement, globalThis.MouseEvent>,
-    message: any
-  ) => {
-    e.preventDefault()
-    const { pageX, pageY } = e
-    const windowSize = window.innerWidth
-
-    setMsg(message)
-
-    if (pageX + 220 > windowSize) {
-      setContextMenu({ show: true, x: pageX, y: pageY, isWiderScreen: true })
-    } else {
-      setContextMenu({ show: true, x: pageX, y: pageY, isWiderScreen: false })
-    }
-  }
-
   const removeMsg = async () => {
     try {
-      //   await axios.post("/api/message/remove", {
-      //     message: msg,
-      //     chatId,
-      //   })
       toast.success("Message removed successfully")
     } catch (err) {
       console.log(err)
     }
   }
 
-  const copyTextToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(msg.text)
-      toast.success("Text copied to clipboard")
-    } catch (error) {
-      console.error("Failed to copy text: ", error)
-      toast.error("Failed to copy text")
+  const handleContextMenu = (
+    e: React.MouseEvent<HTMLDivElement>,
+    message: Message
+  ) => {
+    e.preventDefault()
+
+    const menuWidth = 256
+
+    let left = e.pageX
+
+    if (e.pageX + menuWidth > windowSize.width) {
+      left = e.pageX - menuWidth
     }
+
+    setSelectedMessage(message)
+    setClicked(true)
+    setCoords({ x: e.pageX, y: e.pageY })
   }
 
-  const closeContextMenu = () => setContextMenu(initialContextMenu)
-
   return (
-    <div
-      id="messages"
-      className="flex dark:bg-bg-chat h-full flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
-    >
-      <div ref={scrollDownRef} />
+    <>
+      <div
+        id="messages"
+        className="flex dark:bg-bg-chat h-full flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+      >
+        <div ref={scrollDownRef} />
 
-      {messages?.map((message, idx) => {
-        const isCurrUser = message.sender._id === user._id
-        const isImageMessage = false
-        const hasNextMessageFromSameUser =
-          messages[idx - 1]?.sender._id === messages[idx].sender._id
+        {messages?.map((message, idx) => {
+          const isCurrUser = message.sender._id === user._id
+          const isImageMessage = false
+          const isHebrew = /[\u0590-\u05FF]/.test(message.content)
+          const hasNextMessageFromSameUser =
+            messages[idx - 1]?.sender._id === messages[idx].sender._id
 
-        const formatTimeStamp = (timestamp: number) => {
-          return format(timestamp, "HH:mm")
-        }
-
-        return (
-          <div key={message.id}>
+          return (
             <div
-              className={cn("flex items-end", {
-                "justify-end": isCurrUser,
-              })}
+              key={message.id}
+              onContextMenu={(e) => handleContextMenu(e, message)}
             >
               <div
-                className={cn(
-                  "flex flex-col space-y-2 text-base max-w-xs mx-2",
-                  {
-                    "order-1 items-end": isCurrUser,
-                    "order-2 items-start": !isCurrUser,
-                  }
-                )}
+                className={cn("flex items-end", { "justify-end": isCurrUser })}
               >
-                {isImageMessage ? (
-                  <div
-                    onContextMenu={(e) => openMenu(e, message)}
-                    className="w-60 h-44 relative"
-                  >
-                    <CldImage
-                      src={msg.text}
-                      alt=""
-                      fill
-                      sizes="(max-width: 768px) 100vw,
-                    (max-width: 1200px) 50vw,
-                    33vw"
-                    />
-                    <span className="ml-2 text-sm text-gray-400">
-                      {formatTimeStamp(message.createdAt)}
-                    </span>
-                  </div>
-                ) : (
-                  <div
-                    onContextMenu={(e) => openMenu(e, msg)}
-                    className={cn(" px-4 py-2 rounded-lg inline-block", {
-                      "bg-indigo-600 text-white ": isCurrUser,
-                      "bg-gray-200 text-gray-900  ": !isCurrUser,
-                      "rounded-br-none":
-                        !hasNextMessageFromSameUser && isCurrUser,
-                      "rounded-bl-none":
-                        !hasNextMessageFromSameUser && !isCurrUser,
-                    })}
-                  >
-                    <span className="ml-2">{message.content}</span>
-                    <span className="ml-2 text-sm text-gray-400">
-                      {formatTimeStamp(message.createdAt)}
-                    </span>
-                  </div>
-                )}
+                <div
+                  className={cn(
+                    "flex flex-col space-y-2 text-base max-w-xs mx-2",
+                    {
+                      "order-1 items-end": isCurrUser,
+                      "order-2 items-start": !isCurrUser,
+                    }
+                  )}
+                >
+                  {isImageMessage ? (
+                    <ImgContainer publicId={message.content} />
+                  ) : (
+                    <div
+                      className={cn(
+                        "relative px-4 py-2 rounded-lg flex justify-between gap-2",
+                        {
+                          "bg-indigo-600 text-white": isCurrUser,
+                          "bg-gray-300 text-gray-800": !isCurrUser,
+                          "rounded-br-none":
+                            !hasNextMessageFromSameUser && isCurrUser,
+                          "rounded-bl-none":
+                            !hasNextMessageFromSameUser && !isCurrUser,
+                          "text-left": !isHebrew,
+                          "text-right": isHebrew,
+                        }
+                      )}
+                    >
+                      <span className="sm:text-md text-sm">
+                        {message.content}
+                      </span>
+                      <div className="text-xs text-gray-400">
+                        {formatTimeStamp(message.createdAt)}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-
-              <div
-                className={cn("relative w-6 h-6", {
-                  "order-2": isCurrUser,
-                  "order-1": !isCurrUser,
-                  invisible: hasNextMessageFromSameUser,
-                })}
-              ></div>
             </div>
-          </div>
-        )
-      })}
-    </div>
+          )
+        })}
+        {clicked && selectedMessage && (
+          <ContextMenu top={0} left={0} message={selectedMessage} />
+        )}
+      </div>
+    </>
   )
 }
 

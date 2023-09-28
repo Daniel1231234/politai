@@ -3,7 +3,6 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { connectMongoDB } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
-import twilio from "@/lib/twilio"
 import { toPusherKey } from "@/lib/utils"
 import ChatModel from "@/models/chat"
 import LikeModel from "@/models/like"
@@ -181,6 +180,7 @@ export async function addNewLike(opinionId: string) {
 
 export async function getChatData(chatId: string, sessionId: string) {
   try {
+    await connectMongoDB()
     let chat = await ChatModel.findOne({ chatId })
     if (!chat) return { success: false, message: "No chat has found" }
     const chatPartner = chat.users.find((user) => user._id !== sessionId)
@@ -191,19 +191,40 @@ export async function getChatData(chatId: string, sessionId: string) {
   }
 }
 
-export async function sendWhatsapp(
-  to: string = "+972545882578",
-  message: string
-) {
+export async function deleteChat(chatId: string) {
   try {
-    const res = await twilio.messages.create({
-      body: message,
-      from: process.env.TWILIO_NUMBER ?? "",
-      to: `whatsapp:${to}`,
-    })
-    console.log(res)
-    console.log(`Message sent to ${to}: ${res.sid}`)
+    await connectMongoDB()
+    const chat = await ChatModel.findOne({ chatId })
+    if (!chat) return { success: false, message: "No found chat" }
+
+    const chatToDelete = ChatModel.findOneAndDelete({ chatId })
+
+    const updatedUser = UserModel.findByIdAndUpdate(
+      { _id: chat.users[0]._id },
+      { $pull: { chats: chat._id } }
+    )
+
+    const updatedFriend = UserModel.findByIdAndUpdate(
+      { _id: chat.users[1]._id },
+      { $pull: { chats: chat._id } }
+    )
+
+    await Promise.all([chatToDelete, updatedUser, updatedFriend])
+    return { success: true }
   } catch (error) {
-    console.log(`Failed to send message: ${error}`)
+    console.error(error)
+    throw error
+  }
+}
+
+export async function getChatMessages(chatId: string) {
+  try {
+    await connectMongoDB()
+    let chat = await ChatModel.findOne({ chatId })
+    if (!chat) return null
+    return chat.messages
+  } catch (error) {
+    console.log(error)
+    throw error
   }
 }
