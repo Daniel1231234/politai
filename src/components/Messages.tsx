@@ -51,8 +51,7 @@ const Messages: React.FC<MessagesProps> = ({
     }
 
     const removeMessage = (messageId: string) => {
-      const msgs = messages.filter((msg) => msg.id !== messageId)
-      setMessages(msgs)
+      setMessages((prev) => prev.filter((msg) => msg.id !== messageId))
     }
 
     pusherClient.bind("incoming-message", addMessage)
