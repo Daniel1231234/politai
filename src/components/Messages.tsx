@@ -1,22 +1,29 @@
 "use client"
 
-import { toast } from "react-hot-toast"
-import { FC, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { format } from "date-fns"
-import { FaTrash } from "react-icons/fa"
-import { cn, toPusherKey } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { pusherClient } from "@/lib/pusher"
 import { Message } from "@/types"
 import ImgContainer from "./ImgContainer"
-import { useContextMenu } from "@/hooks/useContextMenu"
+import { useContextMenu } from "react-contexify"
 import ContextMenu from "./ContextMenu"
-import { useWindowSize } from "@/hooks/useWindowSize"
+import toast from "react-hot-toast"
+import { removeChatMessage } from "@/actions"
+import "react-contexify/ReactContexify.css"
+import { User } from "next-auth"
 
 interface MessagesProps {
-  chatMessages: any
+  chatMessages: Message[]
   chatPartnerId: string
-  user: any
+  user: User
   chatId: string
+}
+
+interface ItemClickActions {
+  id: string
+  event: React.MouseEvent
+  props: { message: Message }
 }
 
 const formatTimeStamp = (timestamp: number) => {
@@ -30,54 +37,69 @@ const Messages: React.FC<MessagesProps> = ({
   chatId,
 }) => {
   const [messages, setMessages] = useState<Message[]>(chatMessages)
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [isSameUser, setIsSameUser] = useState<boolean>(false)
   const scrollDownRef = useRef<HTMLDivElement | null>(null)
-  const [isTyping, setIsTyping] = useState(false)
-  const { clicked, setClicked, coords, setCoords } = useContextMenu()
-  const windowSize = useWindowSize()
+  const { show } = useContextMenu({ id: "blabla" })
 
   useEffect(() => {
     pusherClient.subscribe(chatId)
 
-    const messageHandler = (message: Message) => {
+    const addMessage = (message: Message) => {
       if (message.chatId === chatId) {
         setMessages((prev) => [message, ...prev])
       }
     }
 
-    pusherClient.bind("incoming-message", messageHandler)
+    const removeMessage = (messageId: string) => {
+      const msgs = messages.filter((msg) => msg.id !== messageId)
+      setMessages(msgs)
+    }
+
+    pusherClient.bind("incoming-message", addMessage)
+    pusherClient.bind("delete-message", removeMessage)
 
     return () => {
       pusherClient.unsubscribe(chatId)
-      pusherClient.unbind("incoming_message", messageHandler)
+      pusherClient.unbind("incoming_message", addMessage)
+      pusherClient.unbind("delete-message", removeMessage)
     }
   }, [chatId])
 
-  const removeMsg = async () => {
-    try {
-      toast.success("Message removed successfully")
-    } catch (err) {
-      console.log(err)
-    }
+  function handleContextMenu(
+    event: React.MouseEvent,
+    message: Message,
+    isCurrUser: boolean
+  ) {
+    setIsSameUser(isCurrUser)
+    show({
+      event,
+      props: {
+        message,
+        isCurrUser,
+      },
+    })
   }
 
-  const handleContextMenu = (
-    e: React.MouseEvent<HTMLDivElement>,
-    message: Message
-  ) => {
-    e.preventDefault()
-
-    const menuWidth = 256
-
-    let left = e.pageX
-
-    if (e.pageX + menuWidth > windowSize.width) {
-      left = e.pageX - menuWidth
+  const handleItemClick = async ({ id, event, props }: ItemClickActions) => {
+    switch (id) {
+      case "copy":
+        const txt = props.message.content
+        if (!txt) return
+        try {
+          await navigator.clipboard.writeText(txt)
+          toast.success("Text copied to clipboard")
+        } catch (err) {
+          toast.error("Failed to copy text")
+        }
+        break
+      case "remove":
+        const { message } = props
+        const res = await removeChatMessage(chatId, message.id)
+        if (res?.sucess) {
+          toast.success(res.message)
+        }
+        break
     }
-
-    setSelectedMessage(message)
-    setClicked(true)
-    setCoords({ x: e.pageX, y: e.pageY })
   }
 
   return (
@@ -98,7 +120,7 @@ const Messages: React.FC<MessagesProps> = ({
           return (
             <div
               key={message.id}
-              onContextMenu={(e) => handleContextMenu(e, message)}
+              onContextMenu={(e) => handleContextMenu(e, message, isCurrUser)}
             >
               <div
                 className={cn("flex items-end", { "justify-end": isCurrUser })}
@@ -143,9 +165,10 @@ const Messages: React.FC<MessagesProps> = ({
             </div>
           )
         })}
-        {clicked && selectedMessage && (
-          <ContextMenu top={0} left={0} message={selectedMessage} />
-        )}
+        <ContextMenu
+          handleItemClick={handleItemClick}
+          isSameUser={isSameUser}
+        />
       </div>
     </>
   )

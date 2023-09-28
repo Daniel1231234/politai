@@ -217,12 +217,22 @@ export async function deleteChat(chatId: string) {
   }
 }
 
-export async function getChatMessages(chatId: string) {
+export async function removeChatMessage(chatId: string, messageId: string) {
   try {
     await connectMongoDB()
     let chat = await ChatModel.findOne({ chatId })
     if (!chat) return null
-    return chat.messages
+    const messages = chat.messages
+    const updatedMessages = messages.filter((msg) => msg.id !== messageId)
+    await Promise.all([
+      pusherServer.trigger(chatId, "delete-message", messageId),
+      ChatModel.findByIdAndUpdate(
+        { _id: chat._id },
+        { $set: { messages: updatedMessages } }
+      ),
+    ])
+
+    return { sucess: true, message: "Message deleted successfuly" }
   } catch (error) {
     console.log(error)
     throw error
