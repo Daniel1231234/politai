@@ -52,7 +52,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
   }
 
   return (
-    <div className="border-b ">
+    <div className="border-b mx-2 ">
       <div className="flex shadow-sm" id="profile-btns-actions">
         <Button
           onClick={() => setVariant("ABOUT")}

@@ -79,7 +79,7 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
 
   return (
     <>
-      <div className="fixed z-10  bg-zinc-50 border-b  border-zinc-200 top-0 inset-x-0 py-0 px-0">
+      <div className="z-10  bg-zinc-50 border-b  border-zinc-200 top-0 inset-x-0 py-0 px-0">
         <div className="w-full flex justify-between items-center p-2 bg-zinc-200 ">
           <AppLogo />
           <button

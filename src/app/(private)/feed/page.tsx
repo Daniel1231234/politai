@@ -14,11 +14,13 @@ const FeedPage = async ({}: FeedPageProps) => {
   if (!session) return redirect("/auth")
 
   return (
-    <>
-      <NewOpinionInput user={session.user} />
-      <Divider />
-      <OpinionList user={session.user} />
-    </>
+    <div className="h-[calc(100vh-66px)] overflow-y-auto">
+      <div>
+        <NewOpinionInput user={session.user} />
+        <Divider />
+        <OpinionList user={session.user} />
+      </div>
+    </div>
   )
 }
 

@@ -39,7 +39,7 @@ const ProfilePage = async ({ params }: ProfilePageProps) => {
   )
 
   return (
-    <div className=" bg-white flex relative flex-col">
+    <div className="bg-light-1 flex relative flex-col page-layout">
       {!isAlreadyFriends && !isUserProfile && (
         <AddFriendButton
           userToAdd={user}
@@ -47,6 +47,7 @@ const ProfilePage = async ({ params }: ProfilePageProps) => {
         />
       )}
       <ProfileHeader user={user} isUserProfile={isUserProfile} />
+      <Divider />
       <ProfileContent
         user={user}
         isUserProfile={isUserProfile}

@@ -5,9 +5,9 @@ interface SpeechToTextProps {}
 
 const SpeechToText = ({}: SpeechToTextProps) => {
   return (
-    <>
+    <div className="page-layout">
       <Stt />
-    </>
+    </div>
   )
 }
 

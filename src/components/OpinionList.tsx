@@ -20,7 +20,7 @@ const OpinionList = async ({ user }: OpinionListProps) => {
 
   return (
     <>
-      <section className="mt-12 md:px-8">
+      <section className="mx-2">
         {initialOpinions.length === 0 && (
           <EmptyState
             title="No Opinions Yet"

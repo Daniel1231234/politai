@@ -32,7 +32,7 @@ const PrivateChatPage = async ({ params }: PageProps) => {
   )
 
   return (
-    <div className="flex-1 justify-between flex flex-col h-full relative sm:px-0 ">
+    <div className="flex-1 justify-between flex flex-col relative sm:px-0 page-layout ">
       <div className="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
         <div className="relative flex items-center space-x-4">
           <div className="relative ">

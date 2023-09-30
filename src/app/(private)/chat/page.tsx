@@ -15,7 +15,7 @@ const ChatPage = async ({}: ChatPageProps) => {
   const userChats: Chat[] = await getUserChats(session.user._id)
 
   return (
-    <div className="container rounded-md py-12 sm:py-8 ">
+    <div className="page-layout rounded-md py-12 sm:py-8 ">
       {!userChats || userChats.length === 0 ? (
         <EmptyState
           title="No Active Chats"

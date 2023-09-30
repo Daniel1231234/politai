@@ -45,7 +45,22 @@
   display: none !important;
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .page-layout {
+    overflow-y: auto;
+    height: calc(100vh - 66px);
+  }
+}
 
 
 
