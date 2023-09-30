@@ -18,8 +18,8 @@ const OpinionItem: React.FC<OpinionItemProps> = ({
   creatorName,
 }) => {
   return (
-    <div className="w-full md:max-w-md bg-white rounded-lg overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 bg-gray-100">
+    <div className="bg-white rounded-lg overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-4 bg-gray-100">
         <div className="flex items-center">
           <Image
             src={img}
@@ -43,7 +43,7 @@ const OpinionItem: React.FC<OpinionItemProps> = ({
         </div>
       </div>
       <div className="px-6 pt-4 py-8">
-        <p className="text-gray-800 text-base">{item.body}</p>
+        <p className="text-gray-800 text-sm lg:text-base">{item.body}</p>
       </div>
       <Divider />
       <div className="px-6 pt-4 pb-2">

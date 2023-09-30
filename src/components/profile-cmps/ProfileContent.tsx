@@ -55,19 +55,20 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
     <div className="border-b ">
       <div className="flex shadow-sm" id="profile-btns-actions">
         <Button
-          onClick={() => setVariant("OPINIONS")}
-          variant="ghost"
-          className="!bg-inherit hover:!bg-gray-200 hover:!text-blue-500"
-        >
-          Opinios
-        </Button>
-        <Button
           onClick={() => setVariant("ABOUT")}
           variant="ghost"
           className="!bg-inherit hover:!bg-gray-200 hover:!text-blue-500"
         >
           About
         </Button>
+        <Button
+          onClick={() => setVariant("OPINIONS")}
+          variant="ghost"
+          className="!bg-inherit hover:!bg-gray-200 hover:!text-blue-500"
+        >
+          Opinios
+        </Button>
+
         <Button
           onClick={() => setVariant("FRIENDS")}
           variant="ghost"

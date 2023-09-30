@@ -37,8 +37,8 @@ const FeedLayout = async ({ children }: LayoutProps) => {
         <div className="hidden lg:block">
           <FeedHeader user={session.user} friendRequests={friendRequests} />
         </div>
-        <div className="w-full flex h-full lg:h-[calc(100vh-66px)]">
-          <div className="hidden lg:flex w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto px-6">
+        <div className="w-full flex h-full lg:h-[calc(100vh-66px)] ">
+          <div className="hidden lg:flex w-full max-w-xs grow flex-col gap-y-5  px-6">
             <nav className="flex flex-1 flex-col border-r-4">
               <ul
                 role="list"

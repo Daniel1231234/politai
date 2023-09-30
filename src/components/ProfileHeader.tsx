@@ -18,7 +18,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 }) => {
   const router = useRouter()
   return (
-    <div id="profile-top" className="flex flex-col items-center mt-4 ">
+    <div id="profile-top" className="flex flex-col items-center my-4 ">
       <div className="relative cursor-pointer flex items-center">
         <Image
           src={user?.image!}

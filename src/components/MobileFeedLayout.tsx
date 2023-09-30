@@ -230,9 +230,6 @@ const MobileFeedLayout: React.FC<MobileFeedLayoutProps> = ({
             </div>
           </Dialog>
         </Transition.Root>
-        <div className="fixed bottom-0 left-0 w-full bg-zinc-200 z-10 shadow-md py-2">
-          <AppFooter />
-        </div>
       </div>
       {modalOpen && (
         <FriendRequestPreviewModal

@@ -3,11 +3,11 @@ import OpinionItem from "./OpinionItem"
 import EmptyState from "../EmptyState"
 import AddOpinionModal from "../AddOpinionModal"
 import Button from "../Button"
-import { UserDocument } from "@/models/user"
+import { Opinion } from "@/types"
 
 interface OpinionsProps {
   isUserProfile: boolean
-  opinions: any
+  opinions: Opinion[]
   username: string
 }
 
@@ -21,7 +21,7 @@ const Opinions: React.FC<OpinionsProps> = ({
   return (
     <>
       {opinions.length > 0 ? (
-        <div className="relative grid gap-6 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-y-auto p-6 pt-12">
+        <div className="relative grid gap-6 grid-cols-1 lg:grid-cols-2 px-0 lg:px-4 py-12">
           {isUserProfile && (
             <Button
               onClick={() => setIsOpen(true)}
@@ -30,10 +30,10 @@ const Opinions: React.FC<OpinionsProps> = ({
               Create New Opinion
             </Button>
           )}
-          {opinions.map((opinion: any) => (
+          {opinions.map((opinion: Opinion) => (
             <div
               key={opinion._id}
-              className="rounded-lg shadow-lg overflow-hidden transition-transform duration-300 transform hover:-translate-y-2 hover:shadow-xl"
+              className="rounded-lg shadow-lg overflow-hidden  hover:shadow-lg"
             >
               <OpinionItem
                 item={opinion}

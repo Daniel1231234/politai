@@ -9,6 +9,8 @@ import { hrefContructor } from "@/lib/utils"
 import axios from "axios"
 import { User } from "next-auth"
 import { getCurrChat } from "@/actions"
+import { AiFillDelete } from "react-icons/ai"
+import { MdChat } from "react-icons/md"
 
 interface FriendsProps {
   isAllreadyFrinds?: boolean
@@ -72,21 +74,23 @@ const Friends: React.FC<FriendsProps> = ({
               <div className="w-10 h-10 rounded-full overflow-hidden">
                 <Image width={40} height={40} src={friend.image!} alt="" />
               </div>
-              <span className="text-lg font-medium">{friend.name}</span>
+              <span className="lg:text-lg text-sm font-medium">
+                {friend.name}
+              </span>
             </div>
             {isUserProfile && (
               <div className="flex space-x-2">
                 <button
-                  className="px-4 py-2 text-sm font-medium text-red-500 bg-white rounded-full border border-red-500 hover:bg-red-500 hover:text-white"
+                  className="flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-full hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:ring-opacity-50"
                   onClick={() => handleDeleteFriend(friend._id)}
                 >
-                  Delete
+                  <AiFillDelete className="w-5 h-5" />
                 </button>
                 <button
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-full hover:bg-blue-600"
+                  className="flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50"
                   onClick={() => handleStartChat(friend)}
                 >
-                  Private Chat
+                  <MdChat className="w-5 h-5" />
                 </button>
               </div>
             )}

@@ -23,9 +23,10 @@ export async function getUsersById(userId: string, friendId: string) {
 export async function getUserById(userId: string) {
   try {
     await connectMongoDB()
-    return await UserModel.findById({ _id: userId })
+    const user = await UserModel.findById({ _id: userId })
       .populate("opinions")
       .populate("friends")
+    return JSON.parse(JSON.stringify(user))
   } catch (error) {
     throw error
   }

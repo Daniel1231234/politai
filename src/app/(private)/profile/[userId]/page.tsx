@@ -20,17 +20,15 @@ const ProfilePage = async ({ params }: ProfilePageProps) => {
   const session = await getServerSession(authOptions)
   if (!session) redirect("/auth")
 
-  const opinions = await getUserOpinions(session.user._id)
-
   const friends: User[] = await getUserFriends(session.user._id)
 
-  const user = await JSON.parse(
-    JSON.stringify(await getUserById(params.userId))
-  )
+  const user = await getUserById(params.userId)
 
   if (!user) throw new Error("No user found")
 
   const isUserProfile = session.user._id === user._id
+
+  const opinions = await getUserOpinions(params.userId)
 
   const isAlreadyFriends = user.friends.some(
     (friend: any) => friend._id === session.user._id
@@ -49,7 +47,6 @@ const ProfilePage = async ({ params }: ProfilePageProps) => {
         />
       )}
       <ProfileHeader user={user} isUserProfile={isUserProfile} />
-      <Divider />
       <ProfileContent
         user={user}
         isUserProfile={isUserProfile}

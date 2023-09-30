@@ -10,11 +10,7 @@ const GuestLayout = async ({ children }: LayoutProps) => {
   const session = await getServerSession(authOptions)
   if (session) redirect("/feed")
 
-  return (
-    <>
-      <section className="bg-light-1">{children}</section>
-    </>
-  )
+  return <div className="">{children}</div>
 }
 
 export default GuestLayout

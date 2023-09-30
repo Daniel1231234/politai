@@ -1,3 +1,8 @@
+export interface Err {
+  error: string
+  [key: string]: any
+}
+
 export interface FriendRequest {
   senderId: string
   senderImage: string

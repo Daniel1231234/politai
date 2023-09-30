@@ -8,6 +8,7 @@ import { redirect } from "next/navigation"
 const Home = async () => {
   const session = await getServerSession(authOptions)
   if (session) redirect("/feed")
+  else redirect("/auth")
 
   return (
     <main className="leading-normal tracking-normal text-gray-900 bg-gradient-to-r from-[#d53369] to-[#daae51] min-h-full">

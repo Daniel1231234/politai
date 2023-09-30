@@ -1,19 +1,9 @@
-"use client"
-
-import { usePathname } from "next/navigation"
 import React from "react"
 import { BsGithub } from "react-icons/bs"
 
 interface AppFooterProps {}
 
 const AppFooter: React.FC<AppFooterProps> = ({}) => {
-  const path = usePathname()
-
-  const isChatPage = path.includes("chat")
-
-  const isSttPage = path.includes("stt")
-
-  if (isChatPage || isSttPage) return null
   return (
     <div className="mx-auto flex flex-col gap-1 items-center justify-center border-t-2">
       <span className="text-gray-800 text-sm font-medium">

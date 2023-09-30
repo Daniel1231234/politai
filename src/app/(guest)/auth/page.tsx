@@ -8,19 +8,17 @@ import { signIn } from "next-auth/react"
 import Input from "../../../components/Input"
 import GoogleSignin from "@/components/GoogleSignin"
 import axios from "axios"
+import { Err } from "@/types"
+import MobileAuthForm from "@/components/MobileAuthForm"
 
 type Variant = "LOGIN" | "REGISTER"
-
-interface Err {
-  error: string
-  [key: string]: any
-}
 
 const AuthPage = ({}) => {
   const router = useRouter()
   const [variant, setVariant] = useState<Variant>("LOGIN")
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
+  const [isShowForm, setIsShowForm] = useState<boolean>(false)
 
   const toggleVariant = useCallback(() => {
     if (variant === "LOGIN") {
@@ -102,17 +100,31 @@ const AuthPage = ({}) => {
   }
 
   return (
-    <section className="flex min-h-screen overflow-hidden items-stretch bg-slate-900">
-      <div className="lg:flex w-1/2 hidden bg-slate-800 bg-no-repeat bg-cover relative items-center bg-bg-auth">
+    <section className="auth-page-client flex min-h-screen overflow-hidden items-stretch bg-slate-900">
+      <div className="flex w-full lg:w-1/2 bg-slate-800 bg-no-repeat bg-cover relative items-center bg-[url(/images/hero.png)]">
         <div className="absolute bg-black opacity-60 inset-0 z-0"></div>
-        <div className="w-full px-24 z-10">
-          <h2 className="text-5xl font-bold text-center tracking-wide text-gray-50 hover:opacity-80 transition">
-            Welcome to Politai!
-          </h2>
+        <div className="w-full px-4 lg:px-20 text-center lg:text-left z-10 flex flex-col items-center justify-center gap-y-7 h-full">
+          <p className="text-4xl md:leading-snug font-semibold text-white">
+            Connect with Politai-Social and Engage in Politics Like Never
+            Before!
+          </p>
+
+          <p className="text-xl leading-relaxed text-white">
+            Join our community and stay informed about political discussions,
+            debates, and news.{" "}
+            <span className="font-bold">Make your voice heard!</span>
+          </p>
+
+          <button
+            onClick={() => setIsShowForm(true)}
+            className="lg:hidden text-white px-6 py-2 text-lg rounded-full bg-indigo-500 hover:bg-indigo-600 focus:outline-none"
+          >
+            Explore politai now!
+          </button>
         </div>
       </div>
-      <div className="lg:w-1/2  w-full flex items-center justify-center text-center  z-0">
-        <div className="bg-white px-12 py-8 shadow sm:rounded-lg ">
+      <div className="lg:w-1/2 w-full lg:flex hidden items-center justify-center text-center  z-0">
+        <div className={`bg-white px-12 py-8 shadow rounded-lg`}>
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {variant === "REGISTER" && (
               <Input
@@ -143,7 +155,7 @@ const AuthPage = ({}) => {
               type="password"
             />
             <div>
-              <button className="uppercase text-white block w-full p-2 text-lg rounded-full bg-indigo-500 hover:bg-indigo-600 focus:outline-none">
+              <button className="text-white block w-full p-2 text-lg rounded-full bg-indigo-500 hover:bg-indigo-600 focus:outline-none">
                 {variant === "LOGIN" ? "Sign in" : "Register"}
               </button>
             </div>
@@ -162,9 +174,9 @@ const AuthPage = ({}) => {
                 />
               </div>
             </div>
-
             <div className="mt-6 flex gap-2"></div>
           </div>
+
           <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
             <div>
               {variant === "LOGIN"
@@ -180,6 +192,21 @@ const AuthPage = ({}) => {
           </div>
         </div>
       </div>
+      {isShowForm && (
+        <MobileAuthForm
+          isShowForm={isShowForm}
+          setIsShowForm={setIsShowForm}
+          variant={variant}
+          isLoading={isLoading}
+          register={register}
+          handleSubmit={handleSubmit}
+          onSubmit={onSubmit}
+          errors={errors}
+          toggleVariant={toggleVariant}
+          isGoogleLoading={isGoogleLoading}
+          loginWithGoogle={loginWithGoogle}
+        />
+      )}
     </section>
   )
 }
