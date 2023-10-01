@@ -9,6 +9,10 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  pages: {
+    error: "/error",
+    signIn: "/auth",
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -60,6 +64,7 @@ export const authOptions: NextAuthOptions = {
           session.user.role = token.role
           session.user._id = token._id
         } else {
+          await connectMongoDB()
           const dbUser = await UserModel.findOne({ email: session.user.email })
           if (dbUser) {
             session.user._id = dbUser._id.toString()
@@ -77,6 +82,7 @@ export const authOptions: NextAuthOptions = {
         if (account.provider === "google") {
           await connectMongoDB()
           const existUser = await UserModel.findOne({ email: profile.email })
+
           if (!existUser) {
             const newUser = await UserModel.create({
               email: profile.email,
@@ -85,7 +91,7 @@ export const authOptions: NextAuthOptions = {
               password: "justToPassLogin",
               active: true,
             })
-            return true
+            console.log(newUser)
           }
         }
         return true

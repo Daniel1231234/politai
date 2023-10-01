@@ -61,7 +61,7 @@ const AuthPage = ({}) => {
       }
 
       if (variant === "REGISTER") {
-        await axios.post("/api/auth/users", data)
+        await axios.post("/api/users", data)
         const res = await commonSignIn()
         goToFeed(res)
       }
@@ -89,7 +89,7 @@ const AuthPage = ({}) => {
   const loginWithGoogle = async () => {
     setIsGoogleLoading(true)
     try {
-      await signIn("google")
+      const res = await signIn("google")
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error("Something went wrong with your login.")

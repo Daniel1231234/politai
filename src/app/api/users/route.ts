@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server"
-import {connectMongoDB} from "../../../../lib/db"
+import { connectMongoDB } from "@/lib/db"
 import UserModel from "@/models/user"
+import { NextResponse } from "next/server"
 
 interface NewUserRequest {
   name: string
