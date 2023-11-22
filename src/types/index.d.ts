@@ -1,3 +1,5 @@
+import { Account, Profile } from "next-auth"
+
 export interface Err {
   error: string
   [key: string]: any
@@ -53,19 +55,37 @@ export interface Message {
   content: string
   createdAt: number
 }
-declare module "next-auth" {
-  interface User {
-    id?: any
-    name: string
-    email: string
-    image: string
-    role: "admin" | "user"
-    _id: any
-  }
 
-  interface Session {
-    user: User & {
-      _id: any
-    }
-  }
+export interface ExtendedProfile extends Profile {
+  picture?: string
+  role?: string
+}
+
+export interface SignInWithOauthParams {
+  account: Account
+  profile: ExtendedProfile
+}
+
+export interface GetUserByEmailParams {
+  email: string
+}
+
+export interface SignInWithCredentialsParams {
+  email: string
+  password: string
+}
+
+export interface UpdateUserProfileParams {
+  name: string
+}
+
+export interface SignUpWithCredentialsParams {
+  name: string
+  email: string
+  password: string
+}
+
+export interface ChangeUserPasswordParams {
+  oldPassword: string
+  newPassword: string
 }

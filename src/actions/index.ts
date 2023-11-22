@@ -1,17 +1,18 @@
 "use server"
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import { connectMongoDB } from "@/lib/db"
 import { pusherServer } from "@/lib/pusher"
 import { toPusherKey } from "@/lib/utils"
 import ChatModel from "@/models/chat"
 import LikeModel from "@/models/like"
-import OpinionModel from "@/models/opinion"
+import OpinionModel, { createOpinionDto } from "@/models/opinion"
 import UserModel from "@/models/user"
 import { getServerSession } from "next-auth"
+import connectDB from "@/lib/mongodb"
+import CommentModel from "@/models/comment"
 
 export async function getUsersById(userId: string, friendId: string) {
-  await connectMongoDB()
+  await connectDB()
   const res = await Promise.all([
     UserModel.findById({ _id: userId }, "_id name email image chats role"),
     UserModel.findById({ _id: friendId }, "_id name email image chats role"),
@@ -22,7 +23,7 @@ export async function getUsersById(userId: string, friendId: string) {
 
 export async function getUserById(userId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     const user = await UserModel.findById({ _id: userId })
       .populate("opinions")
       .populate("friends")
@@ -34,7 +35,7 @@ export async function getUserById(userId: string) {
 
 export async function getCurrChat(chatId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     const chat = await ChatModel.findOne({ chatId })
     if (!chat) return
     return JSON.parse(JSON.stringify(chat))
@@ -45,7 +46,7 @@ export async function getCurrChat(chatId: string) {
 
 export async function getUserChats(userId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     const user = await UserModel.findById({ _id: userId }).populate("chats")
     if (!user) return
     const chats = user.chats ?? []
@@ -58,7 +59,7 @@ export async function getUserChats(userId: string) {
 
 export async function getUserOpinions(userId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     const opinions = await OpinionModel.find({ creator: userId }).populate(
       "creator",
       "_id name image email role"
@@ -72,7 +73,7 @@ export async function getUserOpinions(userId: string) {
 
 export async function getUserFriends(userId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     const user = await UserModel.findById({ _id: userId }).populate("friends")
 
     const friends = user?.friends.map((frnd: any) => {
@@ -92,7 +93,7 @@ export async function getUserFriends(userId: string) {
 }
 
 export async function getInitialOpinions() {
-  await connectMongoDB()
+  await connectDB()
 
   try {
     // Try populating the creator and comments fields
@@ -111,7 +112,7 @@ export async function getInitialOpinions() {
 }
 
 export async function getUserFriendRequests(userId: string) {
-  await connectMongoDB()
+  await connectDB()
   try {
     const user = await UserModel.findById({ _id: userId })
     if (!user)
@@ -124,7 +125,7 @@ export async function getUserFriendRequests(userId: string) {
 
 export async function addNewLike(opinionId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     const session = await getServerSession(authOptions)
     if (!session) return { success: false }
 
@@ -181,7 +182,7 @@ export async function addNewLike(opinionId: string) {
 
 export async function getChatData(chatId: string, sessionId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     let chat = await ChatModel.findOne({ chatId })
     if (!chat) return { success: false, message: "No chat has found" }
     const chatPartner = chat.users.find((user) => user._id !== sessionId)
@@ -194,7 +195,7 @@ export async function getChatData(chatId: string, sessionId: string) {
 
 export async function deleteChat(chatId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     const chat = await ChatModel.findOne({ chatId })
     if (!chat) return { success: false, message: "No found chat" }
 
@@ -220,7 +221,7 @@ export async function deleteChat(chatId: string) {
 
 export async function removeChatMessage(chatId: string, messageId: string) {
   try {
-    await connectMongoDB()
+    await connectDB()
     let chat = await ChatModel.findOne({ chatId })
     if (!chat) return null
     const messages = chat.messages
@@ -237,5 +238,59 @@ export async function removeChatMessage(chatId: string, messageId: string) {
   } catch (error) {
     console.log(error)
     throw error
+  }
+}
+
+export async function getSearchResults(text: string) {
+  try {
+    const regex = new RegExp(text, "i") // Create a case-insensitive regex pattern
+
+    const opinionsPromise = OpinionModel.find({
+      $or: [{ title: regex }, { body: regex }],
+    })
+    const usersPromise = UserModel.find({
+      $or: [{ name: regex }, { email: regex }],
+    })
+    const commentsPromise = CommentModel.find({ text: regex })
+
+    const [opinion, users, comments] = await Promise.all([
+      opinionsPromise,
+      usersPromise,
+      commentsPromise,
+    ])
+
+    return JSON.parse(JSON.stringify({ opinion, users, comments }))
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function updateUserDetails(updatedUser: any) {
+  try {
+    console.log(updatedUser)
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function addNewOpinion(userId: string, data: createOpinionDto) {
+  try {
+    await connectDB()
+    const newOpinion = await OpinionModel.create({
+      title: data.title,
+      body: data.body,
+      images: data.images,
+      topics: data.topics,
+      creator: userId,
+      createdAt: Date.now(),
+    })
+    await UserModel.findOneAndUpdate(
+      { _id: userId },
+      { $push: { opinions: newOpinion._id } }
+    )
+
+    return { success: true, data: JSON.parse(JSON.stringify(newOpinion)) }
+  } catch (error) {
+    return { success: false, message: error }
   }
 }

@@ -8,15 +8,14 @@ import { RiLogoutBoxFill, RiLogoutBoxLine } from "react-icons/ri"
 import { signOut } from "next-auth/react"
 import toast from "react-hot-toast"
 import { cn } from "@/lib/utils"
-import useFriendRequests from "@/hooks/useFriendRequests"
 import { useRouter } from "next/navigation"
 import FriendRequestPreviewModal from "./FriendRequestPreviewModal"
 import { FriendRequest } from "@/types"
-import { UserDocument } from "@/models/user"
 import axios from "axios"
+import { User } from "next-auth"
 
 interface MenuDropdownProps {
-  user: UserDocument
+  user: User
   friendRequests: FriendRequest[]
 }
 

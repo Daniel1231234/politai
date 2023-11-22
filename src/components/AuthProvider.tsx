@@ -1,19 +1,12 @@
 "use client"
 
-import React from "react"
 import { SessionProvider } from "next-auth/react"
-import { Toaster } from "react-hot-toast"
+import { ReactNode } from "react"
 
-interface AuthProviderProps {
-  children: React.ReactNode
+interface ProviderProps {
+  children: ReactNode
 }
 
-const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  return (
-    <>
-      <SessionProvider>{children}</SessionProvider>
-    </>
-  )
+export function AuthProvider({ children }: ProviderProps) {
+  return <SessionProvider>{children}</SessionProvider>
 }
-
-export default AuthProvider

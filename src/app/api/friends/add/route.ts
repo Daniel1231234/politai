@@ -3,14 +3,14 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../../auth/[...nextauth]/route"
 import UserModel from "@/models/user"
 import { FriendRequest } from "@/types"
-import { connectMongoDB } from "@/lib/db"
+import connectDB from "@/lib/mongodb"
 
 export const POST = async (req: Request) => {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return new Response("Unauthorized", { status: 400 })
 
-    await connectMongoDB()
+    await connectDB()
 
     const { senderUserId } = await req.json()
 

@@ -13,7 +13,7 @@ import { FaFileImage } from "react-icons/fa"
 import { useRouter } from "next/navigation"
 import { CldUploadButton, CldImage } from "next-cloudinary"
 import { getEmptyOpinion } from "@/lib/utils"
-import axios from "axios"
+import { addNewOpinion } from "@/actions"
 
 const animatedComponents = makeAnimated()
 
@@ -24,12 +24,14 @@ interface AddOpinionModalProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
   username: string
+  userId: string
 }
 
 const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
   isOpen,
   setIsOpen,
   username,
+  userId,
 }) => {
   const [topics, setTopics] = useState<string[]>(["general"])
   const [opinion, setOpinion] = useState<createOpinionDto>(emptyOpinion)
@@ -46,11 +48,11 @@ const AddOpinionModal: React.FC<AddOpinionModalProps> = ({
   const onSubmit = async () => {
     setIsLoading(true)
     try {
-      if (imageId) opinion.images!.push(imageId)
+      if (imageId && opinion.images) opinion.images.push(imageId)
       const opinionToSend = { ...opinion, topics }
-      const { data } = await axios.post("/api/opinion", opinionToSend)
-
-      if (data.success) toast.success("Opinion added Successfully!")
+      const { data, success } = await addNewOpinion(userId, opinionToSend)
+      console.log(data)
+      if (success) toast.success("Opinion added Successfully!")
       router.refresh()
     } catch (error) {
       toast.error("Something went wrong, please try again later")

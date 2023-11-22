@@ -1,6 +1,6 @@
 "use client"
 
-import { cn, formatedDistance, toPusherKey } from "@/lib/utils"
+import { cn, formatedDistance, isHebrew, toPusherKey } from "@/lib/utils"
 import Button from "./Button"
 import Divider from "./Divider"
 import Image from "next/image"
@@ -15,7 +15,6 @@ import { FiUserPlus } from "react-icons/fi"
 import { IoIosSend } from "react-icons/io"
 import { FaThumbsUp, FaThumbsDown } from "react-icons/fa"
 import { BiMessageSquareAdd } from "react-icons/bi"
-import { CldImage } from "next-cloudinary"
 import axios from "axios"
 import { User } from "next-auth"
 import { pusherClient } from "@/lib/pusher"
@@ -37,11 +36,6 @@ interface AddLike {
 interface RemoveLike {
   opinionId: string
   likeId: string
-}
-
-function isHebrew(text: string) {
-  const hebrew = /[\u0590-\u05FF]/
-  return hebrew.test(text)
 }
 
 const OpinionPreview: React.FC<OpinionPreviewProps> = ({
@@ -186,7 +180,7 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
     <>
       <div
         ref={opinionRef}
-        className="relative bg-white shadow-md rounded-lg p-4 w-full"
+        className="relative bg-white shadow-md rounded-lg p-4 w-full max-w-full lg:max-w-[80%]"
       >
         <div className="addfriendbtn flex justify-between">
           <div></div>
@@ -234,9 +228,12 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
         </p>
 
         {opinion.images.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 mb-2">
+          <div className="flex items-center justify-start gap-4">
             {opinion.images.map((publicId: string, idx: number) => (
-              <div key={idx} className="rounded-lg overflow-hidden">
+              <div
+                key={idx}
+                className="rounded-lg overflow-hidden cursor-pointer"
+              >
                 <ImgContainer publicId={publicId} />
               </div>
             ))}
@@ -254,11 +251,11 @@ const OpinionPreview: React.FC<OpinionPreviewProps> = ({
             })} `}
           >
             <FaThumbsUp />
-            <span>{opinionLikes.length}</span>
+            <span className="text-sm sm:text-lg">{opinionLikes.length}</span>
           </div>
           <div className="flex gap-1 items-center text-gray-600">
             <BiMessageSquareAdd />
-            <span> {opinionComments.length}</span>
+            <span className="text-sm sm:text-lg">{opinionComments.length}</span>
           </div>
         </div>
 

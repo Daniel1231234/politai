@@ -1,12 +1,12 @@
 import { getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 import { authOptions } from "../auth/[...nextauth]/route"
-import { connectMongoDB } from "@/lib/db"
 import ChatModel from "@/models/chat"
 import UserModel from "@/models/user"
+import connectDB from "@/lib/mongodb"
 
 export const POST = async (req: Request) => {
-  await connectMongoDB()
+  await connectDB()
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ success: false })

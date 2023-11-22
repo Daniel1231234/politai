@@ -80,3 +80,8 @@ export function getEmptyOpinion() {
     topics: [],
   }
 }
+
+export function isHebrew(text: string) {
+  const hebrew = /[\u0590-\u05FF]/
+  return hebrew.test(text)
+}

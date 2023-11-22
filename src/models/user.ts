@@ -3,7 +3,6 @@ import * as bcrypt from "bcrypt"
 import mongoose from "mongoose"
 import { OpinionDocument } from "./opinion"
 import { ChatDocument } from "./chat"
-
 import { FriendRequest } from "@/types"
 
 export interface UserDocument extends Document {
@@ -24,6 +23,7 @@ export interface UserDocument extends Document {
   friendRequests: FriendRequest[]
   createdAt: Date
   role: "admin" | "user"
+  provider: "google" | "credentials"
 }
 
 interface Methodods {
@@ -33,7 +33,7 @@ interface Methodods {
 const userSchema = new Schema<UserDocument, {}, Methodods>({
   email: { type: String, required: true, unique: true },
   name: { type: String, required: true, trim: true },
-  password: { type: String, required: true },
+  password: { type: String },
   active: { type: Boolean, default: false },
   phone: { type: String, default: "" },
   image: { type: String, default: "" },
@@ -61,6 +61,7 @@ const userSchema = new Schema<UserDocument, {}, Methodods>({
   ideology: { type: String, default: "" },
   role: { type: String, enum: ["admin", "user"], default: "user" },
   createdAt: { type: Date, default: new Date() },
+  provider: { type: String, default: "credentials" },
 })
 
 userSchema.pre("save", async function (next) {

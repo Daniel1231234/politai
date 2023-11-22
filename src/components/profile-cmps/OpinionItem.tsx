@@ -1,10 +1,11 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import Image from "next/image"
 import Divider from "../Divider"
 import { FaHeart } from "react-icons/fa"
 import { formatDate, formatDateHHMM } from "@/lib/utils"
+import ImageModal from "../ImageModal"
 
 interface OpinionItemProps {
   item: any
@@ -17,11 +18,14 @@ const OpinionItem: React.FC<OpinionItemProps> = ({
   img,
   creatorName,
 }) => {
+  const [isOpenImage, setIsOpenImage] = useState(false)
+
   return (
     <div className="bg-white rounded-lg overflow-hidden">
       <div className="flex items-center justify-between px-4 py-4 bg-gray-100">
         <div className="flex items-center">
           <Image
+            onClick={() => setIsOpenImage(true)}
             src={img}
             width={40}
             height={40}
@@ -56,6 +60,11 @@ const OpinionItem: React.FC<OpinionItemProps> = ({
           </span>
         ))}
       </div>
+      <ImageModal
+        isShowing={isOpenImage}
+        setIsShowing={setIsOpenImage}
+        src={img}
+      />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { connectMongoDB } from "@/lib/db"
+import connectDB from "@/lib/mongodb"
 import UserModel from "@/models/user"
 import { NextResponse } from "next/server"
 
@@ -21,7 +21,7 @@ type NewResponse = NextResponse<{ user?: NewUserResponse; error?: string }>
 export const POST = async (req: Request): Promise<NewResponse> => {
   try {
     const body = (await req.json()) as NewUserRequest
-    await connectMongoDB()
+    await connectDB()
     const oldUser = await UserModel.findOne({ email: body.email })
 
     if (oldUser) {

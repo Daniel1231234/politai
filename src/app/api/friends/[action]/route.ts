@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../../auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
 import UserModel from "../../../../models/user"
-import { connectMongoDB } from "@/lib/db"
+import connectDB from "@/lib/mongodb"
 
 interface Props {
   params: {
@@ -14,7 +14,7 @@ export const POST = async (req: Request, { params }: Props) => {
   try {
     const session = await getServerSession(authOptions)
 
-    await connectMongoDB()
+    await connectDB()
 
     if (!session) return new Response("Unauthorized", { status: 400 })
 

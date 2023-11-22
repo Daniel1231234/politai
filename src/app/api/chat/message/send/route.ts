@@ -1,14 +1,14 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../../auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
-import { connectMongoDB } from "@/lib/db"
 import { generateRandomId } from "@/lib/utils"
 import ChatModel from "@/models/chat"
 import { pusherServer } from "@/lib/pusher"
+import connectDB from "@/lib/mongodb"
 
 export const POST = async (req: Request) => {
   try {
-    await connectMongoDB()
+    await connectDB()
     const session = await getServerSession(authOptions)
     if (!session)
       return NextResponse.json(
@@ -47,7 +47,7 @@ export const POST = async (req: Request) => {
 
 export const DELETE = async (req: Request) => {
   try {
-    await connectMongoDB()
+    await connectDB()
     const session = await getServerSession(authOptions)
     if (!session)
       return NextResponse.json(

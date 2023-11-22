@@ -1,21 +1,42 @@
-import React from "react"
+import Image from "next/image"
 
-const ErrorPage: React.FC = () => {
+interface ErrorPageProps {
+  statusCode: number
+}
+
+const ErrorPage = ({ statusCode }: ErrorPageProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-xl text-center">
-        <h1 className="text-3xl font-bold text-red-600">Oops!</h1>
-        <p className="mt-4 text-gray-700">
-          It seems like we have a little political turbulence right now.
+    <div className="bg-gray-100 h-screen p-10">
+      <header className="text-center">
+        <Image
+          src="/images/hero.png"
+          alt="Logo"
+          width={120}
+          height={120}
+          className="mx-auto rounded-md"
+        />
+      </header>
+
+      <main className="text-center mt-10">
+        <h1 className="text-6xl font-bold">
+          {statusCode
+            ? `An error ${statusCode} occurred on server`
+            : "An error occurred on client"}
+        </h1>
+
+        <div className="error-animation mt-10 flex items-center justify-center">
+          <div className="w-40 h-40 bg-red-500 rounded-full animate-bounce" />
+        </div>
+
+        <p className="text-xl mt-5">
+          Sorry about that! Please try refreshing the page or going back to the
+          homepage.
         </p>
-        <p className="mt-2 text-gray-500">
-          The page you're looking for either moved to a new constituency or got
-          impeached. Let's get you back to the debating chamber.
-        </p>
-        <button className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">
-          Go Home
-        </button>
-      </div>
+      </main>
+
+      <footer className="text-center text-gray-500 text-sm mt-10">
+        <p>&copy; My Website {new Date().getFullYear()}</p>
+      </footer>
     </div>
   )
 }

@@ -28,6 +28,16 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
 }) => {
   const [variant, setVariant] = useState<Variant>("OPINIONS")
 
+  const userDetails = {
+    email: user.email,
+    birthday: user.birthday,
+    location: user.location,
+    religion: user.religion,
+    phone: user.phone,
+    gender: user.gender,
+    ideology: user.ideology,
+  }
+
   const content = () => {
     switch (variant) {
       case "ABOUT":

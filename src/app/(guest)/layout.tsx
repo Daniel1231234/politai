@@ -7,8 +7,8 @@ interface LayoutProps {
 }
 
 const GuestLayout = async ({ children }: LayoutProps) => {
-  const session = await getServerSession(authOptions)
-  if (session) redirect("/feed")
+  // const session = await getServerSession(authOptions)
+  // if (session) redirect("/feed")
 
   return <div className="">{children}</div>
 }

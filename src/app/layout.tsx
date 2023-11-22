@@ -1,5 +1,5 @@
-import AuthProvider from "@/components/AuthProvider"
 import "./globals.css"
+import { AuthProvider } from "@/components/AuthProvider"
 import type { Metadata } from "next"
 import Providers from "@/components/Providers"
 
@@ -15,12 +15,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <AuthProvider>
-      <html lang="en">
-        <body>
+    <html lang="en">
+      <body>
+        <AuthProvider>
           <Providers>{children}</Providers>
-        </body>
-      </html>
-    </AuthProvider>
+        </AuthProvider>
+      </body>
+    </html>
   )
 }

@@ -5,8 +5,7 @@ import { redirect } from "next/navigation"
 import Messages from "@/components/Messages"
 import ChatInput from "@/components/ChatInput"
 import { Message } from "@/types"
-import { User } from "next-auth"
-import { getChatData, getCurrChat, getUsersById } from "@/actions"
+import { getChatData } from "@/actions"
 interface PageProps {
   params: {
     chatId: string
@@ -32,22 +31,20 @@ const PrivateChatPage = async ({ params }: PageProps) => {
   )
 
   return (
-    <div className="flex-1 justify-between flex flex-col relative sm:px-0 page-layout ">
+    <div className="flex-1 justify-between flex flex-col relative px-4 py-4 sm:px-0  page-layout ">
       <div className="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
         <div className="relative flex items-center space-x-4">
-          <div className="relative ">
-            <div className="relative w-8 sm:w-12 h-8 sm:h-12">
-              <Image
-                fill
-                referrerPolicy="no-referrer"
-                src={chatPartner?.image}
-                alt={`${chatPartner?.name} profile picture`}
-                className="rounded-full"
-                sizes="(max-width: 768px) 100vw,
+          <div className="relative w-8 sm:w-12 h-8 sm:h-12">
+            <Image
+              fill
+              referrerPolicy="no-referrer"
+              src={chatPartner?.image}
+              alt={`${chatPartner?.name} profile picture`}
+              className="rounded-full"
+              sizes="(max-width: 768px) 100vw,
                             (max-width: 1200px) 50vw,
                             33vw"
-              />
-            </div>
+            />
           </div>
 
           <div className="flex flex-col leading-tight">

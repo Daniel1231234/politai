@@ -106,10 +106,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ dbFriend, chatId }) => {
     return null
   }
   return (
-    <div
-      className="border-t  border-gray-200  pt-4 sm:mb-0 "
-      ref={chatInputRef}
-    >
+    <div className="border-t  border-gray-200  pt-4 " ref={chatInputRef}>
       <div className="relative overflow-hidden rounded-lg shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600">
         {openEmojiPicker && (
           <Picker

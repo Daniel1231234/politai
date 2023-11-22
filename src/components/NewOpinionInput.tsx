@@ -13,7 +13,7 @@ const NewOpinionInput: React.FC<NewOpinionInputProps> = ({ user }) => {
 
   return (
     <>
-      <div className="flex gap-4 w-full max-w-md mx-auto my-5">
+      <div className="flex gap-4 w-full max-w-md mx-2 lg:mx-auto my-5">
         <div className="relative">
           <Image
             src={user?.image!}
@@ -36,6 +36,7 @@ const NewOpinionInput: React.FC<NewOpinionInputProps> = ({ user }) => {
       <AddOpinionModal
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        userId={user._id}
         username={user.name}
       />
     </>

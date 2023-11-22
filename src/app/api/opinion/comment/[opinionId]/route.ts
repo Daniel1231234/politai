@@ -3,9 +3,9 @@ import CommentModel from "@/models/comment"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../../../auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
-import { connectMongoDB } from "@/lib/db"
 import { toPusherKey } from "@/lib/utils"
 import { pusherServer } from "@/lib/pusher"
+import connectDB from "@/lib/mongodb"
 
 type Props = {
   params: {
@@ -15,7 +15,7 @@ type Props = {
 
 export const POST = async (req: Request, { params }: Props) => {
   try {
-    await connectMongoDB()
+    await connectDB()
     const session = await getServerSession(authOptions)
     if (!session)
       return NextResponse.json(

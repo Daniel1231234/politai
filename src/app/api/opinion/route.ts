@@ -3,12 +3,12 @@ import { authOptions } from "../../api/auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
 import OpinionModel from "../../../models/opinion"
 import UserModel from "../../../models/user"
-import { connectMongoDB } from "../../../lib/db"
+import connectDB from "@/lib/mongodb"
 
 export const POST = async (req: Request) => {
   try {
     const session: any = await getServerSession(authOptions)
-    await connectMongoDB()
+    await connectDB()
     if (!session) return new NextResponse("Unauthorized", { status: 401 })
     const body = await req.json()
 

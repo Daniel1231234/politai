@@ -1,6 +1,5 @@
-import { Model, models, model, Document, Schema } from "mongoose"
 import mongoose from "mongoose"
-
+import { Model, models, model, Document, Schema } from "mongoose"
 import { CommentDocument } from "./comment"
 import { UserDocument } from "./user"
 import { LikeDocument } from "./like"
@@ -36,6 +35,6 @@ export default OpinionModel as Model<OpinionDocument>
 export interface createOpinionDto {
   title: string
   body: string
-  images?: any[]
+  images?: string[]
   topics: string[]
 }

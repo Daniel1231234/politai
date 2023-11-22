@@ -1,4 +1,3 @@
-import { getInitialOpinions, getUserFriends } from "@/actions"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import Divider from "@/components/Divider"
 import NewOpinionInput from "@/components/NewOpinionInput"
@@ -14,7 +13,7 @@ const FeedPage = async ({}: FeedPageProps) => {
   if (!session) return redirect("/auth")
 
   return (
-    <div className="h-[calc(100vh-66px)] overflow-y-auto">
+    <div className="h-[calc(100vh-66px)] overflow-y-auto overflow-x-hidden mx-auto">
       <div>
         <NewOpinionInput user={session.user} />
         <Divider />

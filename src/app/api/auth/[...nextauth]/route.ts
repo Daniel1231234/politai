@@ -2,102 +2,83 @@ import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import NextAuth from "next-auth"
-import { connectMongoDB } from "@/lib/db"
-import UserModel from "@/models/user"
+import {
+  getUserByEmail,
+  signInWithCredentials,
+  signInWithOauth,
+} from "@/actions/authActions"
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
   pages: {
-    error: "/error",
-    signIn: "/auth",
+    signIn: "/auth", // app/signin
+    error: "/error", // app/error
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
-      name: "credentials",
-      credentials: {},
-      async authorize(credentials, req) {
-        if (credentials == null) return null
-        const { email, password } = credentials as {
-          email: string
-          password: string
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email", required: true },
+        password: { label: "Password", type: "password", required: true },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
         }
 
-        await connectMongoDB()
+        const user = await signInWithCredentials({
+          email: credentials?.email,
+          password: credentials?.password,
+        })
 
-        const user = await UserModel.findOne({ email })
-        if (!user) throw Error("email/password mismatch!")
-        const passwordsMatch = await user.comparePassword(password)
-        if (!passwordsMatch) throw Error("email/password mismatch!")
-
-        return {
-          _id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          role: user.role,
-        } as unknown as any
+        return user
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account, profile }: any) {
+    async signIn({ account, profile }) {
+      if (account?.type === "oauth" && profile) {
+        return await signInWithOauth({ account, profile })
+      }
+      return true
+    },
+    async jwt({ token, trigger, session }) {
       try {
-        if (user && user.role) {
-          token.role = user.role
-          token._id = user._id
+        if (trigger === "update") {
+          token.name = session.name
+        } else {
+          if (token.email) {
+            const user = await getUserByEmail({ email: token.email })
+            if (user) {
+              token.name = user.name
+              token._id = user._id
+              token.role = user.role
+              token.provider = user.provider
+            }
+          }
         }
         return token
       } catch (error) {
-        console.error("JWT callback error:", error)
         return Promise.reject(new Error("JWT callback error"))
       }
     },
-    async session({ session, token, user }: any) {
-      try {
-        if (token.role) {
-          session.user.role = token.role
-          session.user._id = token._id
-        } else {
-          await connectMongoDB()
-          const dbUser = await UserModel.findOne({ email: session.user.email })
-          if (dbUser) {
-            session.user._id = dbUser._id.toString()
-            session.user.role = dbUser.role
-          }
-        }
-        return session
-      } catch (error) {
-        console.error("Session callback error:", error)
-        return Promise.reject(new Error("Session callback error"))
-      }
-    },
-    async signIn({ user, account, profile, email }: any) {
-      try {
-        if (account.provider === "google") {
-          await connectMongoDB()
-          const existUser = await UserModel.findOne({ email: profile.email })
-
-          if (!existUser) {
-            const newUser = await UserModel.create({
-              email: profile.email,
-              name: profile.name,
-              image: profile.picture,
-              password: "justToPassLogin",
-              active: true,
-            })
-            console.log(newUser)
-          }
-        }
-        return true
-      } catch (error) {
-        console.log(error)
-        return false
+    async session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          name: token.name,
+          _id: token._id,
+          role: token.role,
+          provider: token.provider,
+        },
       }
     },
   },
