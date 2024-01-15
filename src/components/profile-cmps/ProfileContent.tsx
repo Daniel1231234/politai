@@ -56,6 +56,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
             isUserProfile={isUserProfile}
             opinions={opinions}
             username={username}
+            userId={user._id.toString()}
           />
         )
     }

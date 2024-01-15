@@ -9,12 +9,14 @@ interface OpinionsProps {
   isUserProfile: boolean
   opinions: Opinion[]
   username: string
+  userId: string
 }
 
 const Opinions: React.FC<OpinionsProps> = ({
   username,
   isUserProfile,
   opinions,
+  userId,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -57,6 +59,7 @@ const Opinions: React.FC<OpinionsProps> = ({
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         username={username}
+        userId={userId}
       />
     </>
   )

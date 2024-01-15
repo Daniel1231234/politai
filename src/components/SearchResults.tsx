@@ -17,11 +17,11 @@ function EmptySearch() {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
       <div className="mb-4 text-2xl font-bold text-gray-700">
-        No Results Found
+        {`No Results Found`}
       </div>
       <div className="text-gray-500">
-        We couldn't find any items matching your search. Try different keywords
-        or filters.
+        {`We couldn't find any items matching your search. Try different keywords
+        or filters.`}
       </div>
     </div>
   )
