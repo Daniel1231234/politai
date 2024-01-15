@@ -77,7 +77,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({
           variant="ghost"
           className="!bg-inherit hover:!bg-gray-200 hover:!text-blue-500"
         >
-          Opinios
+          Opinions
         </Button>
 
         <Button
