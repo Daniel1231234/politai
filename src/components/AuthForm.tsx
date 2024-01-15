@@ -35,8 +35,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ callbackUrl }) => {
     formState: { errors },
   } = useForm<FieldValues>({
     defaultValues: {
-      name: "",
-      email: "dudu@dudu.com",
+      name: "foo",
+      email: "foo@bar.com",
       password: "123",
     },
   })
